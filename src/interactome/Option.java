@@ -117,6 +117,7 @@ public class Option {
 				"stromal_refNames",
 				"stromal_refSeqLen",
 //				"stromal_refMrna",
+				"homologene",
 			};
 			
 			for (String item : required_items) {
