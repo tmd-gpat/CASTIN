@@ -1,6 +1,11 @@
 package interactome;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Properties;
+
 import gnu.getopt.*;
 
 public class Option {
@@ -14,8 +19,8 @@ public class Option {
 	public String input_prefix_paired = null;
 	public boolean input_type_paired = false;
 
-	public int read_length = 50; 				// only for paired-ended mode
-	public int directional_mode = 0;			// 0: count all, 1: Fwd-Rev, 2: Rev-Fwd
+	public int read_length = 50; 		// only for paired-ended mode
+	public int directional_mode = 0;	// 0: count all, 1: Fwd-Rev, 2: Rev-Fwd
 
 	public boolean output_mappability = false;
 	public boolean output_gcpercent = false;
@@ -89,6 +94,46 @@ public class Option {
 		
 		Option._instance = instance;
 		return Option._instance;
+	}
+	
+	/*
+	 * load settings.parameters
+	 */
+	public boolean loadSettingFile() {
+		Logger.logf("\nloading parameters.");
+		
+		Properties config = new Properties();
+		try {
+			InputStream istream = new FileInputStream(new File(this.setting_file_name));
+			config.load(istream);
+			
+			String[] required_items = {
+				"refLink",
+				"cancer_taxonomy",
+				"cancer_refNames",
+				"cancer_refSeqLen",
+				"cancer_refMrna",
+				"stromal_taxonomy",
+				"stromal_refNames",
+				"stromal_refSeqLen",
+				"stromal_refMrna",
+			};
+			
+			for (String item : required_items) {
+				String value = config.getProperty(item);
+				if (value == null) {
+					Logger.errorf("%s is missing in property file", item);
+					return false;
+				}
+				this.settings.put(item, value);
+				Logger.logf("%s: %s", item, value);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
 	}
 }
 

@@ -16,6 +16,12 @@ public class Main {
 		
 		// initialize logger
 		Logger.initialize();
-		Logger.logf("initialized logger.");
+		Logger.logf("logger initialized.");
+		
+		// load settings.properties
+		if (!option.loadSettingFile()) {
+			Logger.close();
+			return;
+		}
 	}
 }

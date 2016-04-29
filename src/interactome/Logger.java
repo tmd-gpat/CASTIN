@@ -45,4 +45,13 @@ public class Logger {
 			e.printStackTrace();
 		}
 	}	
+	
+	public static void close() {
+		try {
+			_bw.close();
+			_fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
