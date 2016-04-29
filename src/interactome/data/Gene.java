@@ -7,6 +7,7 @@ public class Gene {
 	public String symbol;
 	
 	public ArrayList<Refseq> variants;
+	public String tax_id;
 	
 	public Gene(int entrez_id, String symbol) {
 		this.entrez_id = entrez_id;

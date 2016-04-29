@@ -10,7 +10,7 @@ public class Refseq {
 	public Gene gene;
 	public int length;
 	public String chr; // chromosome
-	public int tax_id; // e.g., 9606
+	public String tax_id; // e.g., 9606
 	
 	public boolean is_invalid; // lacking refLink entry
 
