@@ -6,6 +6,7 @@
 
 package interactome;
 
+import interactome.analysis.Analysis;
 import interactome.data.BioDB;
 
 public class Main {
@@ -31,5 +32,22 @@ public class Main {
 			Logger.close();
 			return;
 		}
+		
+		// start analysis
+		Analysis analysis = Analysis.createInstance();
+		
+		if (!analysis.run()) {
+			Logger.close();
+			return;
+		}
+		
+		// output analysis results
+		if (!analysis.outputResults()) {
+			Logger.close();
+			return;
+		}
+		
+		Logger.logf("\nAnalysis finished.");
+		Logger.close();
 	}
 }
