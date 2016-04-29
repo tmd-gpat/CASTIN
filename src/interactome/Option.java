@@ -100,7 +100,7 @@ public class Option {
 	 * load settings.parameters
 	 */
 	public boolean loadSettingFile() {
-		Logger.logf("\nloading parameters.");
+		Logger.logf("\nstart loading parameters.");
 		
 		Properties config = new Properties();
 		try {
@@ -112,11 +112,11 @@ public class Option {
 				"cancer_taxonomy",
 				"cancer_refNames",
 				"cancer_refSeqLen",
-				"cancer_refMrna",
+//				"cancer_refMrna",
 				"stromal_taxonomy",
 				"stromal_refNames",
 				"stromal_refSeqLen",
-				"stromal_refMrna",
+//				"stromal_refMrna",
 			};
 			
 			for (String item : required_items) {
@@ -132,7 +132,8 @@ public class Option {
 			e.printStackTrace();
 			return false;
 		}
-		
+
+		Logger.logf("\nloading parameters done.");
 		return true;
 	}
 }

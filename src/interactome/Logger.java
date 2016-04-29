@@ -20,6 +20,8 @@ public class Logger {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		Logger.logf("logger initialized.");
 	}
 	
 	public static void logf(String format, Object... args) {

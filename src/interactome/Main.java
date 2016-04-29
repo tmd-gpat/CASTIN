@@ -6,6 +6,8 @@
 
 package interactome;
 
+import interactome.data.BioDB;
+
 public class Main {
 	public static void main(String[] args) {
 		// load options
@@ -16,7 +18,6 @@ public class Main {
 		
 		// initialize logger
 		Logger.initialize();
-		Logger.logf("logger initialized.");
 		
 		// load settings.properties
 		if (!option.loadSettingFile()) {
@@ -25,6 +26,10 @@ public class Main {
 		}
 		
 		// initialize BioDB
-		
+		BioDB bioDB = BioDB.createInstance();
+		if (bioDB == null) {
+			Logger.close();
+			return;
+		}
 	}
 }
