@@ -1,6 +1,10 @@
 package interactome.analysis;
 
+import interactome.Logger;
+import interactome.Option;
 import interactome.input.Input;
+import interactome.input.PairedEndInput;
+import interactome.input.SingleEndInput;
 
 public class Analysis {
 	private static Analysis _instance;
@@ -31,6 +35,21 @@ public class Analysis {
 	}
 	
 	private Input loadInput() {
-		return null;
+		Option option = Option.getInstance();
+		
+		Input input = null;
+		if (option.input_type_paired) {
+			Logger.logf("\nloading input file (paired-ended).");
+			input = new PairedEndInput();
+		} else {
+			Logger.logf("\nloading input file (single-ended).");
+			input = new SingleEndInput();
+		}
+		
+		if (!input.loadFile()) {
+			return null;
+		}
+		
+		return input;
 	}
 }
