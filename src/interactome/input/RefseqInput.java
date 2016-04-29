@@ -5,6 +5,7 @@ import interactome.data.Refseq;
 public class RefseqInput {
 	public Refseq refseq;
 	
+	public long rawCount = 0;
 	public long[] overwrap_counts;
 	public long[] starting_counts;
 	

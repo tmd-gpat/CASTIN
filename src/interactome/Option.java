@@ -15,7 +15,7 @@ public class Option {
 	// command-line options
 	public String output_path = null;
 	
-	public String input_prefix_single = null;
+	public String input_file_single = null;
 	public String input_prefix_paired = null;
 	public boolean input_type_paired = false;
 
@@ -45,10 +45,10 @@ public class Option {
 		while ((c = options.getopt()) != -1) {
 			switch (c) {
 			case 's':	// single-end input prefix
-				instance.input_prefix_single = options.getOptarg();
+				instance.input_file_single = options.getOptarg();
 				instance.input_type_paired = false;
 				Logger.logf("input mode: single-ended");
-				Logger.logf("input prefix: %s", instance.input_prefix_single);
+				Logger.logf("input file: %s", instance.input_file_single);
 				break;
 			case 'p':	// paired-end input prefix
 				instance.input_prefix_paired = options.getOptarg();
@@ -81,7 +81,7 @@ public class Option {
 		}
 		
 		// error if both or none of (-p, -o) was specified
-		if (!((instance.input_prefix_single == null) ^ (instance.input_prefix_paired == null))) {
+		if (!((instance.input_file_single == null) ^ (instance.input_prefix_paired == null))) {
 			Logger.errorf("you should specify one of -s or -p option.");
 			return null;
 		}
