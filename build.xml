@@ -10,6 +10,7 @@
     <property name="source" value="1.8"/>
     <path id="Analysis.classpath">
         <pathelement location="bin"/>
+        <pathelement location="lib/java-getopt-1.0.14.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -49,6 +50,7 @@
     </target>
     <target name="Main (1)">
         <java classname="interactome.Main" failonerror="true" fork="yes">
+            <arg line="-p ../input/1000000/1000000 -o ../output/1000000 -l 50"/>
             <classpath refid="Analysis.classpath"/>
         </java>
     </target>
