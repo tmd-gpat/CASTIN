@@ -23,5 +23,8 @@ public class Main {
 			Logger.close();
 			return;
 		}
+		
+		// initialize BioDB
+		
 	}
 }
