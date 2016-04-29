@@ -20,9 +20,11 @@ public class BioDB {
 	public HashMap<String, String[]> homolog_cancer2stroma_db;
 	public HashMap<String, String[]> homolog_stroma2cancer_db;
 	
+	public String[] all_refseq_ids;
 	public String[] cancer_refseq_ids;
 	public String[] stromal_refseq_ids;
 	
+	public String[] all_entrez_ids;
 	public String[] cancer_entrez_ids;
 	public String[] stromal_entrez_ids;
 	
@@ -96,6 +98,9 @@ public class BioDB {
 		
 		this.cancer_refseq_ids = cancer_refseq_id_list.toArray(new String[]{});
 		this.stromal_refseq_ids = stromal_refseq_id_list.toArray(new String[]{});
+		this.all_refseq_ids = new String[this.cancer_refseq_ids.length + this.stromal_refseq_ids.length];
+		System.arraycopy(this.cancer_refseq_ids, 0, this.all_refseq_ids, 0, this.cancer_refseq_ids.length);
+		System.arraycopy(this.stromal_refseq_ids, 0, this.all_refseq_ids, this.cancer_refseq_ids.length, this.stromal_refseq_ids.length);
 		
 		Logger.logf("%d cancer refseq & %d stromal refseq names are loaded from refNames.",
 					cancer_refseq_id_list.size(), stromal_refseq_id_list.size());
@@ -148,6 +153,10 @@ public class BioDB {
 		}
 		this.cancer_entrez_ids = cancer_entrez_id_list.toArray(new String[]{});
 		this.stromal_entrez_ids = stromal_entrez_id_list.toArray(new String[]{});
+		this.all_entrez_ids = new String[this.cancer_entrez_ids.length + this.stromal_entrez_ids.length];
+		System.arraycopy(this.cancer_entrez_ids, 0, this.all_entrez_ids, 0, this.cancer_entrez_ids.length);
+		System.arraycopy(this.stromal_entrez_ids, 0, this.all_entrez_ids, this.cancer_entrez_ids.length, this.stromal_entrez_ids.length);
+
 		
 		Logger.logf("%d cancer genes & %d stromal genes are loaded from refLink.",
 					cancer_entrez_id_list.size(), stromal_entrez_id_list.size());
