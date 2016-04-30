@@ -18,6 +18,7 @@ public class Option {
 	public String input_file_single = null;
 	public String input_prefix_paired = null;
 	public boolean input_type_paired = false;
+	public int input_paired_length = 0;
 
 	public int read_length = 50; 		// only for paired-ended mode
 	public int directional_mode = 0;	// 0: count all, 1: Fwd-Rev, 2: Rev-Fwd
@@ -75,14 +76,27 @@ public class Option {
 				if (instance.directional_mode == 2) strand_str = "(reverse, forward)";
 				Logger.logf("\tdirectional mode:\t%s\n", strand_str);
 				break;
-			case 'l':	// read length
+			case 'l':
+				instance.input_paired_length = Integer.valueOf(options.getOptarg());
+				Logger.logf("read length (paired-end)", instance.input_paired_length);
 				break;
 			}
 		}
 		
-		// error if both or none of (-p, -o) was specified
+		// error if both or none of (-p, -s) was specified
 		if (!((instance.input_file_single == null) ^ (instance.input_prefix_paired == null))) {
 			Logger.errorf("you should specify one of -s or -p option.");
+			return null;
+		}
+		
+		// error if both -s and -l were specified
+		if (instance.input_file_single != null && instance.input_paired_length != 0) {
+			Logger.errorf("read length (-l) cannot be specified in single-end mode.");
+			return null;
+		}
+		
+		if (instance.input_prefix_paired != null && instance.input_paired_length == 0) {
+			Logger.errorf("read length (-l) should be specified in paired-end mode.");
 			return null;
 		}
 		
