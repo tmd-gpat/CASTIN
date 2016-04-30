@@ -13,8 +13,10 @@ import interactome.data.Refseq;
 
 public class SingleEndInput extends Input {
 	BioDB biodb;
-	final int MIN_MATCH_LENGTH = 50;
+	Option option;
 	Random r;
+	
+	final int MIN_MATCH_LENGTH = 50;
 	
 	public SingleEndInput() {
 		super();
@@ -24,7 +26,7 @@ public class SingleEndInput extends Input {
 
 	@Override
 	public boolean loadFile() {
-		Option option = Option.getInstance();
+		option = Option.getInstance();
 		
 		Logger.logf("\nstart loading RNA-seq file (single-ended)");
 		try {
@@ -45,7 +47,7 @@ public class SingleEndInput extends Input {
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				if (line.charAt(0) == '@') continue;
-				if (row_count++ % 1_000_000 == 0) Logger.logf("processed %d rows", row_count);
+				if (row_count++ % 1_000_000 == 0) Logger.logf("processed %d rows", row_count-1);
 				
 				String[] row = line.split("\t");
 				String read_id = row[0];
@@ -55,7 +57,7 @@ public class SingleEndInput extends Input {
 				if (refseq_id.contains("*")) continue;
 				map_count++;
 				
-				// calculate match-length
+				// calculate match-length from CIGAR string (CIGAR does not contain mismatch information)
 				int match_length = 0;
 				String[] length_chunks = row[5].split("[A-Z]");
 				
@@ -124,9 +126,9 @@ public class SingleEndInput extends Input {
 				}
 			}
 			
-			Logger.logf("%d SAM rows is loaded.", row_count);
-			Logger.logf("%d map is contained in the SAM file.", map_count);
-			Logger.logf("%d reads is mapped to a unique gene.", accepted_read_count);
+			Logger.logf("%d sam rows are loaded.", row_count);
+			Logger.logf("%d maps are contained in the sam file.", map_count);
+			Logger.logf("%d reads are mapped to unique genes.", accepted_read_count);
 			Logger.logf("(cancer: %d, stroma: %d)", cancer_read_count, stromal_read_count);
 			
 			br.close();

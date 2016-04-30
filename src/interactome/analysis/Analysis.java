@@ -39,10 +39,8 @@ public class Analysis {
 		
 		Input input = null;
 		if (option.input_type_paired) {
-			Logger.logf("\nloading input file (paired-ended).");
 			input = new PairedEndInput();
 		} else {
-			Logger.logf("\nloading input file (single-ended).");
 			input = new SingleEndInput();
 		}
 		
