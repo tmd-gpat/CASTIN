@@ -1,6 +1,5 @@
 package interactome.analysis;
 
-import interactome.Logger;
 import interactome.Option;
 import interactome.input.Input;
 import interactome.input.PairedEndInput;
@@ -23,10 +22,17 @@ public class Analysis {
 	}
 	
 	public boolean run() {
+		// load input reads
 		this.input = this.loadInput();
 		if (this.input == null) {
 			return false;
 		}
+		
+		// calculate dynamic parameters
+		DynamicParameters dp = DynamicParameters.createInstance(this.input);
+		dp.selectParameterRefseqs();
+		
+		
 		return true;
 	}
 	
