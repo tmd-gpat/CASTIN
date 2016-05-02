@@ -126,11 +126,11 @@ public class Option {
 				"cancer_taxonomy",
 				"cancer_refNames",
 				"cancer_refSeqLen",
-//				"cancer_refMrna",
+				"cancer_refMrna",
 				"stromal_taxonomy",
 				"stromal_refNames",
 				"stromal_refSeqLen",
-//				"stromal_refMrna",
+				"stromal_refMrna",
 				"homologene",
 			};
 			

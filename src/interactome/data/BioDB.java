@@ -55,6 +55,10 @@ public class BioDB {
 		if (!this.loadRefSeqLen()) return false;
 		if (!this.loadHomologene()) return false;
 
+		Option option = Option.getInstance();
+		if (!this.calculateGCPercent(option.settings.get("cancer_refMrna"))) return false;
+		if (!this.calculateGCPercent(option.settings.get("stromal_refMrna"))) return false;
+
 		Logger.logf("loading BioDB done.");
 		return true;
 	}
@@ -288,6 +292,62 @@ public class BioDB {
 		}
 		Logger.logf("%d homologene entries for cancer/stromal genes are loaded.", used_entry_count);
 		
+		return true;
+	}
+	
+	private boolean calculateGCPercent(String refMrna_filename) {
+		Logger.logf("calculating GC percents for " + refMrna_filename);
+		
+		try {
+			// load cancer refMrna
+			FileReader fr = new FileReader(refMrna_filename);
+			BufferedReader br = new BufferedReader(fr);
+			
+			String l;
+			String sequence = "";
+			String current_refseq = "";
+			int processed_refseqs = 0;
+			while ((l = br.readLine()) != null) {
+				if (l.charAt(0) == '>') {
+					if (!current_refseq.equals("")) {
+						int[] gc_counts = new int[sequence.length()];
+						int[] at_counts = new int[sequence.length()];
+						for (int i=0; i<sequence.length(); i++) {
+							for (int j=Math.max(0, i-49); j<Math.min(i+50, sequence.length()); j++) {
+								if (sequence.charAt(i) == 'c' || sequence.charAt(i) == 'g')
+									gc_counts[j]++;
+								else
+									at_counts[j]++;
+							}
+						}
+						Refseq refseq = this.refseq_db.get(current_refseq);
+						refseq.gc_percent = new short[refseq.length];
+						for (int i=0; i<sequence.length(); i++) {
+							double gc_ratio = (double) gc_counts[i] / (at_counts[i] + gc_counts[i]);
+							refseq.gc_percent[i] = (short)(gc_ratio * 100);
+						}
+						
+						processed_refseqs++;
+						if (processed_refseqs % 10000 == 0) {
+							Logger.logf("%d", processed_refseqs);
+						}
+					}
+					current_refseq = l.split(" ")[0].substring(1);
+					sequence = "";
+				} else {
+					sequence = sequence + l.trim();
+				}
+			}
+			
+			br.close();
+			fr.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+			
+		}
+		
+		Logger.logf("done.");
 		return true;
 	}
 }
