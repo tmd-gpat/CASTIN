@@ -32,7 +32,6 @@ public class Analysis {
 		DynamicParameters dp = DynamicParameters.createInstance(this.input);
 		dp.selectParameterRefseqs();
 		
-		
 		return true;
 	}
 	

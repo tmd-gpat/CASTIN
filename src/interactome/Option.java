@@ -132,6 +132,8 @@ public class Option {
 				"stromal_refSeqLen",
 				"stromal_refMrna",
 				"homologene",
+				"self_matching",
+				"self_matching_direct",
 			};
 			
 			for (String item : required_items) {
