@@ -11,6 +11,7 @@
     <path id="Analysis.classpath">
         <pathelement location="bin"/>
         <pathelement location="lib/java-getopt-1.0.14.jar"/>
+        <pathelement location="../../../../../Library/Frameworks/R.framework/Versions/3.1/Resources/library/rJava/jri/JRI.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -48,9 +49,19 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="Main (1)">
+    <target name="Analysis_paired">
         <java classname="interactome.Main" failonerror="true" fork="yes">
-            <arg line="-p ../input/1000000/1000000 -o ../output/1000000 -l 50"/>
+            <env key="R_HOME" value="/Library/Frameworks/R.framework/Resources"/>
+            <jvmarg line="-Xmx8g -Xms8g -Djava.library.path=/Library/Frameworks/R.framework/Resources/library/rJava/jri"/>
+            <arg line="-p ../input/1000000/1000000 -l 50 -o ../output/1000000"/>
+            <classpath refid="Analysis.classpath"/>
+        </java>
+    </target>
+    <target name="Analysis_single">
+        <java classname="interactome.Main" failonerror="true" fork="yes">
+            <env key="R_HOME" value="/Library/Frameworks/R.framework/Resources"/>
+            <jvmarg line="-Xmx16g -Xms8g -Djava.library.path=/Library/Frameworks/R.framework/Resources/library/rJava/jri"/>
+            <arg line="-s ../input/TUH-48/TUH-48_50bp.sam -o ../output/TUH-48"/>
             <classpath refid="Analysis.classpath"/>
         </java>
     </target>
