@@ -55,11 +55,12 @@ public class BioDB {
 		if (!this.loadRefSeqLen()) return false;
 		if (!this.loadHomologene()) return false;
 
+		Logger.logf("loading BioDB done.");
+
 		Option option = Option.getInstance();
 		if (!this.calculateGCPercent(option.settings.get("cancer_refMrna"))) return false;
 		if (!this.calculateGCPercent(option.settings.get("stromal_refMrna"))) return false;
-
-		Logger.logf("loading BioDB done.");
+		
 		return true;
 	}
 
@@ -296,7 +297,7 @@ public class BioDB {
 	}
 	
 	private boolean calculateGCPercent(String refMrna_filename) {
-		Logger.logf("calculating GC percents for " + refMrna_filename);
+		Logger.logf("\ncalculating GC percents for " + refMrna_filename);
 		Option option = Option.getInstance();
 		
 		try {

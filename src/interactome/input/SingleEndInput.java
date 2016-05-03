@@ -185,7 +185,6 @@ public class SingleEndInput extends Input {
 		entry.rawCount++;
 		entry.starting_counts[position]++;
 		
-		// 端を飛び出るタイプのマッチは切り捨てる
 		for (int i=0; i<length && (position+i)<entry.overwrap_counts.length; i++) {
 			entry.overwrap_counts[position+i]++;
 		}

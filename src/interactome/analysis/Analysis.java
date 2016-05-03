@@ -31,6 +31,9 @@ public class Analysis {
 		// calculate dynamic parameters
 		DynamicParameters dp = DynamicParameters.createInstance(this.input);
 		dp.selectParameterRefseqs();
+		if (!dp.calculateWeightedMappability()) {
+			return false;
+		}
 		
 		return true;
 	}

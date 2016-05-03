@@ -150,7 +150,7 @@ public class Option {
 			return false;
 		}
 
-		Logger.logf("\nloading parameters done.");
+		Logger.logf("loading parameters done.");
 		return true;
 	}
 }

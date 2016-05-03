@@ -123,6 +123,7 @@ public class PairedEndInput extends Input {
 				}
 				
 				if (data_1.size() == 0 || data_2.size() == 0) continue;
+				this.match_length_distribution[option.input_paired_length]++;
 				
 				// check unique-gene-hit condition
 				Gene gene_1 = biodb.refseq_db.get(data_1.get(0)[2]).gene;

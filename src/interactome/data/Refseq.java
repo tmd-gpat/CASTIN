@@ -17,11 +17,12 @@ public class Refseq {
 	public short[] gc_percent;
 	public double[] mappability;
 
-	public ArrayList<Pair> unmappable_regions;
+	public ArrayList<Pair<Integer, Integer>> unmappable_regions;
 	
 	public Refseq(String refseq_id) {
 		this.refseq_id = refseq_id;
 		this.is_invalid = false;
+		this.unmappable_regions = new ArrayList<Pair<Integer,Integer>>();
 	}
 	
 	// number of mappable positions where n-bp read starting from there is uniquely mappable
@@ -29,7 +30,7 @@ public class Refseq {
 		int count = 0;
 		for (int i=0; i<=length-n; i++) {
 			boolean is_mappable = true;
-			for (Pair pair : unmappable_regions) {
+			for (Pair<Integer, Integer> pair : unmappable_regions) {
 				if ((Integer)pair.first <= i && (i+n) < (Integer)pair.second) {
 					is_mappable = false;
 					break;
