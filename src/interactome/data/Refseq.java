@@ -15,7 +15,7 @@ public class Refseq {
 	public boolean is_invalid; // lacking refLink entry
 
 	public short[] gc_percent;
-	public double[] mappability;
+	public float[] mappability;
 
 	public ArrayList<Pair<Integer, Integer>> unmappable_regions;
 	

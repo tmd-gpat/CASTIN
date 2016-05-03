@@ -78,7 +78,7 @@ public class Option {
 				break;
 			case 'l':
 				instance.input_paired_length = Integer.valueOf(options.getOptarg());
-				Logger.logf("read length (paired-end)", instance.input_paired_length);
+				Logger.logf("read length (paired-end): %d", instance.input_paired_length);
 				break;
 			}
 		}

@@ -149,7 +149,7 @@ public class DynamicParameters {
 			}
 			
 			Refseq refseq = biodb.refseq_db.get(refseq_id);
-			refseq.mappability = new double[refseq.length];
+			refseq.mappability = new float[refseq.length];
 			for (int i=0; i<refseq.length; i++) refseq.mappability[i] = 0;
 			
 			// for each start position of a matching

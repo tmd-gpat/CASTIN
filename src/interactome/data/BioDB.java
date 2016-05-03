@@ -187,7 +187,7 @@ public class BioDB {
 				}
 			}
 		}
-		Logger.errorf("%d cancer refseqs & %d stromal refseqs was missing in refLink.",
+		Logger.errorf("%d cancer refseqs & %d stromal refseqs were missing in refLink.",
 					  missing_refseqs_cancer, missing_refseqs_stroma);
 	}
 	

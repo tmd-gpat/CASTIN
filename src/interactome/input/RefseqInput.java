@@ -8,6 +8,8 @@ public class RefseqInput {
 	public long rawCount = 0;
 	public long[] overlap_counts;
 	public long[] starting_counts;
+
+	public double true_expression;
 	
 	public double coverage(int depth) {
 		int covered = 0;
