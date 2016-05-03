@@ -49,6 +49,8 @@ open(ARGV[2]) { |file|
     next if direction == 'D' && !collect_d
     next if direction == 'P' && !collect_p
 
+    next if refseq_gene_table[refseq1].nil? || refseq_gene_table[refseq2].nil?
+
     # DEBUG: output refseq-refseq
     # puts "#{refseq1}\t#{refseq2}\t#{position1}\t#{length1}\t#{position2}\t#{length2}"
 
