@@ -7,8 +7,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.omg.CORBA.INTERNAL;
 
 public class BioDB {
 	private static BioDB _instance;
@@ -297,6 +300,7 @@ public class BioDB {
 	
 	private boolean calculateGCPercent(String refMrna_filename) {
 		Logger.logf("calculating GC percents for " + refMrna_filename);
+		Option option = Option.getInstance();
 		
 		try {
 			// load cancer refMrna
@@ -310,20 +314,40 @@ public class BioDB {
 			while ((l = br.readLine()) != null) {
 				if (l.charAt(0) == '>') {
 					if (!current_refseq.equals("")) {
-						int[] gc_counts = new int[sequence.length()];
-						int[] at_counts = new int[sequence.length()];
+						int n = option.read_length; // side range
+						
+						int[] is_gc_array = new int[sequence.length() + 2*n - 2];
 						for (int i=0; i<sequence.length(); i++) {
-							for (int j=Math.max(0, i-49); j<Math.min(i+50, sequence.length()); j++) {
-								if (sequence.charAt(i) == 'c' || sequence.charAt(i) == 'g')
-									gc_counts[j]++;
-								else
-									at_counts[j]++;
+							if (sequence.charAt(i) == 'g' || sequence.charAt(i) == 'c') {
+								is_gc_array[i + option.read_length - 1] = 1;
 							}
 						}
+
+						int[] buffer = new int[n*2-1]; // ring buffer
+						int buffer_start = 0;
+						
+						// initialize buffer
+						int[] gc_counts = new int[sequence.length()];
+						int sum = 0;
+						for (int i=0; i<buffer.length; i++) {					
+							buffer[i] = is_gc_array[i];
+							sum += buffer[i];
+						}
+						for (int scan_pos = n-1; scan_pos<n+sequence.length()-1; scan_pos++) {
+							gc_counts[scan_pos-(n-1)] = sum;
+							if (scan_pos == n+sequence.length()-2) break;
+							
+							sum -= buffer[buffer_start];
+							buffer[buffer_start] = is_gc_array[scan_pos + n];
+							sum += buffer[buffer_start];
+							buffer_start = (buffer_start+1) % buffer.length;
+						}
+
 						Refseq refseq = this.refseq_db.get(current_refseq);
 						refseq.gc_percent = new short[refseq.length];
 						for (int i=0; i<sequence.length(); i++) {
-							double gc_ratio = (double) gc_counts[i] / (at_counts[i] + gc_counts[i]);
+							int count = Math.min(i+n-1, sequence.length()-1) - Math.max(i-n+1, 0);
+							double gc_ratio = (double) gc_counts[i] / count;
 							refseq.gc_percent[i] = (short)(gc_ratio * 100);
 						}
 						
@@ -335,7 +359,7 @@ public class BioDB {
 					current_refseq = l.split(" ")[0].substring(1);
 					sequence = "";
 				} else {
-					sequence = sequence + l.trim();
+					sequence = sequence + l.trim().toLowerCase();
 				}
 			}
 			
