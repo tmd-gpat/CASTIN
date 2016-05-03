@@ -1,13 +1,9 @@
 package interactome.analysis;
 
-import java.util.Arrays;
-import java.util.Map;
 
 import interactome.Logger;
 import interactome.data.BioDB;
-import interactome.data.Gene;
 import interactome.data.Refseq;
-import interactome.input.GeneInput;
 import interactome.input.Input;
 import interactome.input.RefseqInput;
 
@@ -44,7 +40,7 @@ public class BiasCorrector {
 		// constants
 		int max_frompolya = 3000;
 		int iteration_count_max = 1000;
-		double iteration_abort_ratio = 0.001;
+		double iteration_abort_ratio = 0.005;
 		
 		int n = this.dynamicParameters.parameterRefseqs.length;
 		

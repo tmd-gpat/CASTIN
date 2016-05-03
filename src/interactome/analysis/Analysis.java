@@ -88,7 +88,7 @@ public class Analysis {
 			
 			RefseqInput[] refinputs = new RefseqInput[gene.variants.size()];
 			for (int i=0; i<gene.variants.size(); i++) {
-				refinputs[i] = input.refseq_inputs.get(gene.variants.get(i));
+				refinputs[i] = input.refseq_inputs.get(gene.variants.get(i).refseq_id);
 			}
 			
 			// accept refseq with maximum true_expression
