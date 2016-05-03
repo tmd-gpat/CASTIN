@@ -75,7 +75,7 @@ public class SingleEndInput extends Input {
 				}
 				this.match_length_distribution[match_length]++;
 				
-				int match_position = Integer.valueOf(row[3]);
+				int match_position = Integer.valueOf(row[3])-1; // 1-order -> 0-order
 				
 				// ignore too short match length
 				if (match_length < MIN_MATCH_LENGTH) continue;
@@ -185,8 +185,8 @@ public class SingleEndInput extends Input {
 		entry.rawCount++;
 		entry.starting_counts[position]++;
 		
-		for (int i=0; i<length && (position+i)<entry.overwrap_counts.length; i++) {
-			entry.overwrap_counts[position+i]++;
+		for (int i=0; i<length && (position+i)<entry.overlap_counts.length; i++) {
+			entry.overlap_counts[position+i]++;
 		}
 	}
 }

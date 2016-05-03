@@ -156,13 +156,13 @@ public class PairedEndInput extends Input {
 				for (String[] data : data_1) {
 					Refseq refseq = biodb.refseq_db.get(data[2]);
 					DetectedData detection = detections.get(refseq);
-					detection.pos_a.add(Integer.valueOf(data[3]));
+					detection.pos_a.add(Integer.valueOf(data[3])-1); // 1-order -> 0-order
 					detection.reverse_a.add((Integer.valueOf(data[1]) & 16) != 0);
 				}
 				for (String[] data : data_2) {
 					Refseq refseq = biodb.refseq_db.get(data[2]);
 					DetectedData detection = detections.get(refseq);
-					detection.pos_b.add(Integer.valueOf(data[3]));
+					detection.pos_b.add(Integer.valueOf(data[3])-1); // 1-order -> 0-order
 					detection.reverse_b.add((Integer.valueOf(data[1]) & 16) != 0);
 				}
 				
@@ -273,10 +273,10 @@ public class PairedEndInput extends Input {
 		entry.starting_counts[pos_b]++;
 		
 		for (int i=pos_a; i<pos_a+option.input_paired_length && i<refseq.length; i++) {
-			entry.overwrap_counts[i]++;
+			entry.overlap_counts[i]++;
 		}
 		for (int i=pos_b; i<pos_b+option.input_paired_length && i<refseq.length; i++) {
-			entry.overwrap_counts[i]++;
+			entry.overlap_counts[i]++;
 		}
 	}
 

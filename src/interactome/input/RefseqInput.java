@@ -6,13 +6,13 @@ public class RefseqInput {
 	public Refseq refseq;
 	
 	public long rawCount = 0;
-	public long[] overwrap_counts;
+	public long[] overlap_counts;
 	public long[] starting_counts;
 	
 	public double coverage(int depth) {
 		int covered = 0;
 		for (int i=0; i<this.refseq.length; i++) {
-			if (this.overwrap_counts[i] >= depth) covered++;
+			if (this.overlap_counts[i] >= depth) covered++;
 		}
 		
 		return (double)covered / this.refseq.length;
@@ -21,7 +21,7 @@ public class RefseqInput {
 	public RefseqInput(Refseq refseq) {
 		this.refseq = refseq;
 		if (!refseq.is_invalid) {
-			this.overwrap_counts = new long[refseq.length];
+			this.overlap_counts = new long[refseq.length];
 			this.starting_counts = new long[refseq.length];
 		}
 	}
