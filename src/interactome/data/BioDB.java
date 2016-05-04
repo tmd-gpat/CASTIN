@@ -359,7 +359,10 @@ public class BioDB {
 					if (receptor_stroma.length == 0)
 						Logger.errorf("receptor %s does not have stromal homologue gene. (interaction %d)", receptor, interaction_id);
 					
-					interactions.add(new Interaction(interaction_id, type, kegg, kegg_id, ligand_cancer, receptor_cancer, ligand_stroma, receptor_stroma));
+					interactions.add(
+						new Interaction(
+							interaction_id, type, kegg, kegg_id, ligand, receptor,
+							ligand_cancer, receptor_cancer,ligand_stroma, receptor_stroma));
 				} else {
 					if (ligand_gene == null) Logger.errorf("ligand %s in interaction %d is missing in refLink.", ligand, interaction_id);
 					if (receptor_gene == null) Logger.errorf("receptor %s in interaction %d is missing in refLink.", receptor, interaction_id);

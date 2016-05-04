@@ -1,13 +1,28 @@
 package interactome.data;
 
+import interactome.input.GeneInput;
+
 public class Interaction {
-	int id;
-	String type, kegg, url;
-	Gene[] ligand_cancer, receptor_cancer, ligand_stroma, receptor_stroma;
-	boolean valid_cancer_to_stroma = true;
-	boolean valid_stroma_to_cancer = true;
+	public int id;
+	public String type, kegg, url;
+	public String ligand_symbol, receptor_symbol;
+	public Gene[] ligand_cancer, receptor_cancer, ligand_stroma, receptor_stroma;
+	public boolean valid_cancer_to_stroma = true;
+	public boolean valid_stroma_to_cancer = true;
+	
+	// analyze results
+	public GeneInput ginput_ligand_cancer = null, ginput_ligand_stroma = null;
+	public GeneInput ginput_receptor_cancer = null, ginput_receptor_stroma = null;
+	public double average_cancer2stroma;
+	public double average_stroma2cancer;
+	public double ligand_ratio_cancer;
+	public double ligand_ratio_stroma;
+	public double ligand_posession_for_same_receptor = 0;
+	public double receptor_ratio_stroma;
+	public double receptor_ratio_cancer;
 	
 	public Interaction(int id, String type, String kegg, String kegg_id,
+					   String ligand_symbol, String receptor_symbol,
 					   Gene[] ligand_cancer, Gene[] receptor_cancer,
 					   Gene[] ligand_stroma, Gene[] receptor_stroma) {
 		this.id = id;
