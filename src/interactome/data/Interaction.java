@@ -3,13 +3,13 @@ package interactome.data;
 public class Interaction {
 	int id;
 	String type, kegg, url;
-	Gene ligand_cancer, receptor_cancer, ligand_stroma, receptor_stroma;
+	Gene[] ligand_cancer, receptor_cancer, ligand_stroma, receptor_stroma;
 	boolean valid_cancer_to_stroma = true;
 	boolean valid_stroma_to_cancer = true;
 	
 	public Interaction(int id, String type, String kegg, String kegg_id,
-					   Gene ligand_cancer, Gene receptor_cancer,
-					   Gene ligand_stroma, Gene receptor_stroma) {
+					   Gene[] ligand_cancer, Gene[] receptor_cancer,
+					   Gene[] ligand_stroma, Gene[] receptor_stroma) {
 		this.id = id;
 		this.type = type;
 		this.kegg = kegg;

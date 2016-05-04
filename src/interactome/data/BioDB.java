@@ -17,8 +17,12 @@ public class BioDB {
 	// databases
 	public HashMap<String, Refseq> refseq_db;
 	public HashMap<String, Gene> gene_db;
-	public HashMap<String, String[]> homolog_cancer2stroma_db;
-	public HashMap<String, String[]> homolog_stroma2cancer_db;
+	public HashMap<String, Gene> gene_cancer_symbol_db;
+	public HashMap<String, Gene> gene_stromal_symbol_db;
+	public HashMap<Gene, Gene[]> homolog_cancer2stroma_db;
+	public HashMap<Gene, Gene[]> homolog_cancer2cancer_db;
+	public HashMap<Gene, Gene[]> homolog_stroma2cancer_db;
+	public HashMap<Gene, Gene[]> homolog_stroma2stroma_db;
 	
 	public String[] all_refseq_ids;
 	public String[] cancer_refseq_ids;
@@ -28,11 +32,17 @@ public class BioDB {
 	public String[] cancer_entrez_ids;
 	public String[] stromal_entrez_ids;
 	
+	public Interaction[] interactions;
+	
 	private BioDB() {
 		this.refseq_db = new HashMap<String, Refseq>();
 		this.gene_db = new HashMap<String, Gene>();
-		this.homolog_cancer2stroma_db = new HashMap<String, String[]>();
-		this.homolog_stroma2cancer_db = new HashMap<String, String[]>();
+		this.gene_cancer_symbol_db = new HashMap<String, Gene>();
+		this.gene_stromal_symbol_db = new HashMap<String, Gene>();
+		this.homolog_cancer2stroma_db = new HashMap<Gene, Gene[]>();
+		this.homolog_stroma2cancer_db = new HashMap<Gene, Gene[]>();
+		this.homolog_cancer2cancer_db = new HashMap<Gene, Gene[]>();
+		this.homolog_stroma2stroma_db = new HashMap<Gene, Gene[]>();
 	}
 	
 	public static BioDB createInstance() {
@@ -54,6 +64,7 @@ public class BioDB {
 		this.checkMissingRefseqs();
 		if (!this.loadRefSeqLen()) return false;
 		if (!this.loadHomologene()) return false;
+		if (!this.loadInteractions()) return false;
 
 		Logger.logf("loading BioDB done.");
 
@@ -141,8 +152,10 @@ public class BioDB {
 
 						if (refseq.tax_id.equals(option.settings.get("cancer_taxonomy"))) {
 							cancer_entrez_id_list.add(entrez_id);
+							this.gene_cancer_symbol_db.put(symbol, gene);
 						} else {
 							stromal_entrez_id_list.add(entrez_id);
+							this.gene_stromal_symbol_db.put(symbol, gene);
 						}
 					}
 					gene.variants.add(refseq);
@@ -251,8 +264,8 @@ public class BioDB {
 			
 			String line = null;
 			String current_homologene_id = null;
-			ArrayList<String> h_cancer_entrez_ids = new ArrayList<String>();
-			ArrayList<String> h_stromal_entrez_ids = new ArrayList<String>();
+			ArrayList<Gene> h_cancer_genes = new ArrayList<Gene>();
+			ArrayList<Gene> h_stromal_genes = new ArrayList<Gene>();
 			while ((line = br.readLine()) != null) {
 				String[] row = line.split("\t");
 				String homologene_id = row[0];
@@ -261,28 +274,33 @@ public class BioDB {
 				
 				if (!homologene_id.equals(current_homologene_id)) {
 					// create multiple-genes to multiple-genes map
-					if (current_homologene_id != null && h_cancer_entrez_ids.size() > 0 && h_stromal_entrez_ids.size() > 0) {
-						String[] ha_cancer_entrez_ids = h_cancer_entrez_ids.toArray(new String[]{});
-						String[] ha_stromal_entrez_ids = h_stromal_entrez_ids.toArray(new String[]{});
+					if (current_homologene_id != null &&
+						h_cancer_genes.size() > 0 && h_stromal_genes.size() > 0) {
+						Gene[] ha_cancer_genes = h_cancer_genes.toArray(new Gene[]{});
+						Gene[] ha_stromal_genes = h_stromal_genes.toArray(new Gene[]{});
 						
-						for (String cancer_entrez_id : h_cancer_entrez_ids) {
-							homolog_cancer2stroma_db.put(cancer_entrez_id, ha_stromal_entrez_ids);
+						for (Gene cancer_gene : h_cancer_genes) {
+							homolog_cancer2stroma_db.put(cancer_gene, ha_stromal_genes);
+							homolog_cancer2cancer_db.put(cancer_gene, ha_cancer_genes);
 						}
-						for (String stromal_entrez_id : h_stromal_entrez_ids) {
-							homolog_stroma2cancer_db.put(stromal_entrez_id, ha_cancer_entrez_ids);
+						for (Gene stromal_gene : h_stromal_genes) {
+							homolog_stroma2cancer_db.put(stromal_gene, ha_cancer_genes);
+							homolog_stroma2stroma_db.put(stromal_gene, ha_stromal_genes);
 						}
 						used_entry_count++;
 					}
 					
-					h_cancer_entrez_ids.clear();
-					h_stromal_entrez_ids.clear();
+					h_cancer_genes.clear();
+					h_stromal_genes.clear();
 					current_homologene_id = homologene_id;
 				}
 				if (tax_id.equals(option.settings.get("cancer_taxonomy"))) {
-					h_cancer_entrez_ids.add(entrez_id);
+					Gene gene = gene_db.get(entrez_id);
+					if (gene != null) h_cancer_genes.add(gene);
 				}
 				if (tax_id.equals(option.settings.get("stromal_taxonomy"))) {
-					h_stromal_entrez_ids.add(entrez_id);
+					Gene gene = gene_db.get(entrez_id);
+					if (gene != null) h_stromal_genes.add(gene);
 				}
 			}
 			br.close();
@@ -293,6 +311,61 @@ public class BioDB {
 		}
 		Logger.logf("%d homologene entries for cancer/stromal genes are loaded.", used_entry_count);
 		
+		return true;
+	}
+
+	// 6. KEGG_HPRD
+	private boolean loadInteractions() {
+		Option option = Option.getInstance();
+		ArrayList<Interaction> interactions = new ArrayList<Interaction>();
+		
+		try {
+			FileReader fr = new FileReader(option.settings.get("curated_HPRD_KEGG"));
+			BufferedReader br = new BufferedReader(fr);
+
+			br.readLine(); // skip header line
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				String[] row = line.split("\t");
+				if (row.length < 12) {
+					Logger.errorf("invalid row of curated_HPRD_KEGG: %s", line);
+					continue;
+				}
+				int interaction_id = Integer.valueOf(row[0]);
+				String ligand = row[1];
+				String receptor = row[2];
+				String kegg = "NA", kegg_id = "NA";
+				if (row[10].split("_").length >= 2) {
+					kegg = row[10].split("_")[1];
+					kegg_id = row[10].split("_")[0];
+				}
+				String type = row[11].trim();
+				
+				// find genes
+				Gene ligand_gene = gene_cancer_symbol_db.get(ligand);
+				Gene receptor_gene = gene_cancer_symbol_db.get(receptor);
+				if (ligand_gene != null || receptor_gene != null) {
+					Gene[] ligand_cancer = this.homolog_cancer2cancer_db.get(ligand_gene);
+					Gene[] ligand_stroma = this.homolog_cancer2stroma_db.get(ligand_gene);
+					Gene[] receptor_cancer = this.homolog_cancer2cancer_db.get(receptor_gene);
+					Gene[] receptor_stroma = this.homolog_cancer2stroma_db.get(receptor_gene);
+					
+					interactions.add(new Interaction(interaction_id, type, kegg, kegg_id, ligand_cancer, receptor_cancer, ligand_stroma, receptor_stroma));
+				} else {
+					if (ligand_gene == null) Logger.errorf("ligand %s in interaction %d is missing.", ligand, interaction_id);
+					if(receptor_gene == null) Logger.errorf("receptor %s in interaction %d is missing.", receptor, interaction_id);
+				}
+			}
+			br.close();
+			fr.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		this.interactions = interactions.toArray(new Interaction[]{});
+		Logger.logf("%d interactions are loaded.", this.interactions.length);		
+
 		return true;
 	}
 	

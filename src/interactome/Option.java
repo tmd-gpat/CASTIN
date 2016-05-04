@@ -134,6 +134,7 @@ public class Option {
 				"homologene",
 				"self_matching",
 				"self_matching_direct",
+				"curated_HPRD_KEGG",
 			};
 			
 			for (String item : required_items) {
