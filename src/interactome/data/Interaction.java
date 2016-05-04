@@ -21,9 +21,9 @@ public class Interaction {
 		this.ligand_stroma = ligand_stroma;
 		this.receptor_stroma = receptor_stroma;
 		
-		if (this.ligand_cancer == null || this.receptor_stroma == null)
+		if (this.ligand_cancer.length == 0 || this.receptor_stroma.length == 0)
 			this.valid_cancer_to_stroma = false;
-		if (this.ligand_stroma == null || this.receptor_cancer == null)
+		if (this.ligand_stroma.length == 0 || this.receptor_cancer.length == 0)
 			this.valid_stroma_to_cancer = false;
 	}
 }

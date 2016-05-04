@@ -153,9 +153,13 @@ public class BioDB {
 						if (refseq.tax_id.equals(option.settings.get("cancer_taxonomy"))) {
 							cancer_entrez_id_list.add(entrez_id);
 							this.gene_cancer_symbol_db.put(symbol, gene);
+							this.homolog_cancer2cancer_db.put(gene, new Gene[]{gene});
+							this.homolog_cancer2stroma_db.put(gene, new Gene[]{});
 						} else {
 							stromal_entrez_id_list.add(entrez_id);
 							this.gene_stromal_symbol_db.put(symbol, gene);
+							this.homolog_stroma2stroma_db.put(gene, new Gene[]{gene});
+							this.homolog_stroma2cancer_db.put(gene, new Gene[]{});
 						}
 					}
 					gene.variants.add(refseq);
@@ -275,7 +279,7 @@ public class BioDB {
 				if (!homologene_id.equals(current_homologene_id)) {
 					// create multiple-genes to multiple-genes map
 					if (current_homologene_id != null &&
-						h_cancer_genes.size() > 0 && h_stromal_genes.size() > 0) {
+						h_cancer_genes.size() > 0 || h_stromal_genes.size() > 0) {
 						Gene[] ha_cancer_genes = h_cancer_genes.toArray(new Gene[]{});
 						Gene[] ha_stromal_genes = h_stromal_genes.toArray(new Gene[]{});
 						
@@ -344,16 +348,21 @@ public class BioDB {
 				// find genes
 				Gene ligand_gene = gene_cancer_symbol_db.get(ligand);
 				Gene receptor_gene = gene_cancer_symbol_db.get(receptor);
-				if (ligand_gene != null || receptor_gene != null) {
+				if (ligand_gene != null && receptor_gene != null) {
 					Gene[] ligand_cancer = this.homolog_cancer2cancer_db.get(ligand_gene);
 					Gene[] ligand_stroma = this.homolog_cancer2stroma_db.get(ligand_gene);
 					Gene[] receptor_cancer = this.homolog_cancer2cancer_db.get(receptor_gene);
 					Gene[] receptor_stroma = this.homolog_cancer2stroma_db.get(receptor_gene);
 					
+					if (ligand_stroma.length == 0)
+						Logger.errorf("ligand %s does not have stromal homologue gene. (interaction %d)", ligand, interaction_id);
+					if (receptor_stroma.length == 0)
+						Logger.errorf("receptor %s does not have stromal homologue gene. (interaction %d)", receptor, interaction_id);
+					
 					interactions.add(new Interaction(interaction_id, type, kegg, kegg_id, ligand_cancer, receptor_cancer, ligand_stroma, receptor_stroma));
 				} else {
-					if (ligand_gene == null) Logger.errorf("ligand %s in interaction %d is missing.", ligand, interaction_id);
-					if(receptor_gene == null) Logger.errorf("receptor %s in interaction %d is missing.", receptor, interaction_id);
+					if (ligand_gene == null) Logger.errorf("ligand %s in interaction %d is missing in refLink.", ligand, interaction_id);
+					if (receptor_gene == null) Logger.errorf("receptor %s in interaction %d is missing in refLink.", receptor, interaction_id);
 				}
 			}
 			br.close();
