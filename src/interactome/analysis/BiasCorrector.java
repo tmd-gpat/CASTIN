@@ -173,7 +173,7 @@ public class BiasCorrector {
 				
 				for (int j=0; j<refseq.length; j++) {
 					if (refseq.mappability[j] > 0) {
-						sums[i] += mappability_sums[i] / (mappable_position_counts[i] * refseq.mappability[j]) * refinput.overlap_counts[j];
+						sums[i] += mappability_sums[i] / (mappable_position_counts[i] * refseq.mappability[j]) * refinput.starting_counts[j];
 					}
 				}
 				
