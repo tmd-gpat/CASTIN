@@ -40,7 +40,7 @@ public class BiasCorrector {
 		// constants
 		int max_frompolya = 3000;
 		int iteration_count_max = 1000;
-		double iteration_abort_ratio = 0.005;
+		double iteration_abort_ratio = 0.001;
 		
 		int n = this.dynamicParameters.parameterRefseqs.length;
 		
@@ -180,7 +180,7 @@ public class BiasCorrector {
 				refinput.true_expression = sums[i] / w;
 			}
 		}
-		Logger.logf("correction done.");
+		Logger.logf("bias correction done.");
 		
 		return true;
 	}

@@ -1,5 +1,6 @@
 package interactome.data;
 
+import interactome.analysis.Analysis;
 import interactome.input.GeneInput;
 
 public class Interaction {
@@ -21,6 +22,22 @@ public class Interaction {
 	public double receptor_ratio_stroma;
 	public double receptor_ratio_cancer;
 	
+	public double cancer_ligand_average;
+	public double cancer_ligand_receptor_ratio;
+	public Analysis.InteractionResult[] cancer_ligand_receptor_ranking;
+	
+	public double cancer_receptor_average;
+	public double cancer_receptor_ligand_ratio;
+	public Analysis.InteractionResult[] cancer_receptor_ligand_ranking;
+	
+	public double stroma_ligand_average;
+	public double stroma_ligand_receptor_ratio;
+	public Analysis.InteractionResult[] stroma_ligand_receptor_ranking;
+	
+	public double stroma_receptor_average;
+	public double stroma_receptor_ligand_ratio;
+	public Analysis.InteractionResult[] stroma_receptor_ligand_ranking;
+	
 	public Interaction(int id, String type, String kegg, String kegg_id,
 					   String ligand_symbol, String receptor_symbol,
 					   Gene[] ligand_cancer, Gene[] receptor_cancer,
@@ -35,6 +52,9 @@ public class Interaction {
 		this.receptor_cancer = receptor_cancer;
 		this.ligand_stroma = ligand_stroma;
 		this.receptor_stroma = receptor_stroma;
+		
+		this.ligand_symbol = ligand_symbol;
+		this.receptor_symbol = receptor_symbol;
 		
 		if (this.ligand_cancer.length == 0 || this.receptor_stroma.length == 0)
 			this.valid_cancer_to_stroma = false;
