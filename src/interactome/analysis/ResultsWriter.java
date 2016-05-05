@@ -3,10 +3,12 @@ package interactome.analysis;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 
 import interactome.Logger;
 import interactome.Option;
+import interactome.analysis.Analysis.InteractionResult;
 import interactome.data.BioDB;
 import interactome.data.Interaction;
 import interactome.input.GeneInput;
@@ -82,6 +84,11 @@ public class ResultsWriter {
 	
 	public void writeKEGGHPRDFiles() {
 		writeKEGGHPRDResult();
+		
+		writeKEGGHPRDResultCancerLigand();
+		writeKEGGHPRDResultCancerReceptor();
+		writeKEGGHPRDResultStromaLigand();
+		writeKEGGHPRDResultStromaReceptor();
 		
 		Logger.logf("wrote KEGGHPRD files.");
 	}
@@ -290,6 +297,237 @@ public class ResultsWriter {
 	}
 	
 	private void writeKEGGHPRDResultCancerLigand() {
-		
+		Option option = Option.getInstance();
+		BioDB biodb = BioDB.getInstance();
+	
+		try {
+			FileWriter fw = new FileWriter(option.output_path + "/KEGGHPRD_result_cancer_ligand.txt");
+			BufferedWriter bw = new BufferedWriter(fw);
+			
+			// write header
+			String[] column_names = new String[] {
+				"ligand",
+				"average count",
+				"receptor ratio",
+				"ligand ratio",
+				"activate or inhibit",
+				"pathway",
+				"url",
+				"receptor (normalized count)",
+			};
+			for (int i=0; i<column_names.length; i++) {
+				bw.write(column_names[i]);
+				if (i<column_names.length-1) bw.write("\t");
+				else bw.write("\n");
+			}
+
+			HashSet<String> used = new HashSet<String>();
+			for (Interaction interaction : biodb.interactions) {
+				if (used.contains(interaction.ligand_symbol)) continue;
+				used.add(interaction.ligand_symbol);
+
+				Object[] data;
+				data = new Object[] {
+					interaction.ligand_symbol,
+					interaction.cancer_ligand_average,
+					interaction.cancer_ligand_receptor_ratio == -1 ? "NA" : interaction.cancer_ligand_receptor_ratio,
+					interaction.ligand_ratio_cancer == -1 ? "NA" : interaction.ligand_ratio_cancer,
+					interaction.type,
+					interaction.kegg,
+					interaction.url,
+				};
+				for (int i=0; i<data.length; i++) {
+					bw.write(String.valueOf(data[i]));
+					bw.write("\t");
+				}
+				// ranking
+				for (InteractionResult res : interaction.cancer_ligand_receptor_ranking) {
+					bw.write(res.symbol + "(" + res.expression + ")\t");
+				}
+				bw.write("\n");
+			}
+			
+			bw.close();
+			fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	private void writeKEGGHPRDResultCancerReceptor() {
+		Option option = Option.getInstance();
+		BioDB biodb = BioDB.getInstance();
+	
+		try {
+			FileWriter fw = new FileWriter(option.output_path + "/KEGGHPRD_result_cancer_receptor.txt");
+			BufferedWriter bw = new BufferedWriter(fw);
+			
+			// write header
+			String[] column_names = new String[] {
+				"ligand",
+				"average count",
+				"ligand ratio",
+				"receptor ratio",
+				"activate or inhibit",
+				"pathway",
+				"url",
+				"ligand (normalized count)",
+			};
+			for (int i=0; i<column_names.length; i++) {
+				bw.write(column_names[i]);
+				if (i<column_names.length-1) bw.write("\t");
+				else bw.write("\n");
+			}
+			
+			HashSet<String> used = new HashSet<String>();
+			for (Interaction interaction : biodb.interactions) {
+				if (used.contains(interaction.receptor_symbol)) continue;
+				used.add(interaction.receptor_symbol);
+				Object[] data;
+				data = new Object[] {
+					interaction.receptor_symbol,
+					interaction.cancer_receptor_average,
+					interaction.cancer_receptor_ligand_ratio == -1 ? "NA" : interaction.cancer_receptor_ligand_ratio,
+					interaction.receptor_ratio_cancer == -1 ? "NA" : interaction.receptor_ratio_cancer,
+					interaction.type,
+					interaction.kegg,
+					interaction.url,
+				};
+				for (int i=0; i<data.length; i++) {
+					bw.write(String.valueOf(data[i]));
+					bw.write("\t");
+				}
+				// ranking
+				for (InteractionResult res : interaction.cancer_receptor_ligand_ranking) {
+					bw.write(res.symbol + "(" + res.expression + ")\t");
+				}
+				bw.write("\n");
+			}
+			
+			bw.close();
+			fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	private void writeKEGGHPRDResultStromaLigand() {
+		Option option = Option.getInstance();
+		BioDB biodb = BioDB.getInstance();
+	
+		try {
+			FileWriter fw = new FileWriter(option.output_path + "/KEGGHPRD_result_stroma_ligand.txt");
+			BufferedWriter bw = new BufferedWriter(fw);
+			
+			// write header
+			String[] column_names = new String[] {
+				"ligand",
+				"average count",
+				"receptor ratio",
+				"ligand ratio",
+				"activate or inhibit",
+				"pathway",
+				"url",
+				"receptor (normalized count)",
+			};
+			for (int i=0; i<column_names.length; i++) {
+				bw.write(column_names[i]);
+				if (i<column_names.length-1) bw.write("\t");
+				else bw.write("\n");
+			}
+
+			HashSet<String> used = new HashSet<String>();
+			for (Interaction interaction : biodb.interactions) {
+				if (!interaction.valid_stroma_to_cancer || used.contains(interaction.ligand_symbol)) continue;
+				used.add(interaction.ligand_symbol);
+				
+				Object[] data;
+				data = new Object[] {
+					interaction.ligand_symbol,
+					interaction.stroma_ligand_average,
+					interaction.stroma_ligand_receptor_ratio == -1 ? "NA" : interaction.stroma_ligand_receptor_ratio,
+					interaction.ligand_ratio_stroma == -1 ? "NA" : interaction.ligand_ratio_stroma,
+					interaction.type,
+					interaction.kegg,
+					interaction.url,
+				};
+				for (int i=0; i<data.length; i++) {
+					bw.write(String.valueOf(data[i]));
+					bw.write("\t");
+				}
+				// ranking
+				for (InteractionResult res : interaction.stroma_ligand_receptor_ranking) {
+					bw.write(res.symbol + "(" + res.expression + ")\t");
+				}
+				bw.write("\n");
+			}
+			
+			bw.close();
+			fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	private void writeKEGGHPRDResultStromaReceptor() {
+		Option option = Option.getInstance();
+		BioDB biodb = BioDB.getInstance();
+	
+		try {
+			FileWriter fw = new FileWriter(option.output_path + "/KEGGHPRD_result_stroma_receptor.txt");
+			BufferedWriter bw = new BufferedWriter(fw);
+			
+			// write header
+			String[] column_names = new String[] {
+				"ligand",
+				"average count",
+				"ligand ratio",
+				"receptor ratio",
+				"activate or inhibit",
+				"pathway",
+				"url",
+				"ligand (normalized count)",
+			};
+			for (int i=0; i<column_names.length; i++) {
+				bw.write(column_names[i]);
+				if (i<column_names.length-1) bw.write("\t");
+				else bw.write("\n");
+			}
+
+			HashSet<String> used = new HashSet<String>();
+			for (Interaction interaction : biodb.interactions) {
+				if (!interaction.valid_cancer_to_stroma || used.contains(interaction.receptor_symbol)) continue;
+				used.add(interaction.receptor_symbol);
+				
+				Object[] data;
+				data = new Object[] {
+					interaction.receptor_symbol,
+					interaction.stroma_receptor_average,
+					interaction.stroma_receptor_ligand_ratio == -1 ? "NA" : interaction.stroma_receptor_ligand_ratio,
+					interaction.receptor_ratio_stroma == -1 ? "NA" : interaction.receptor_ratio_stroma,
+					interaction.type,
+					interaction.kegg,
+					interaction.url,
+				};
+				for (int i=0; i<data.length; i++) {
+					bw.write(String.valueOf(data[i]));
+					bw.write("\t");
+				}
+				// ranking
+				for (InteractionResult res : interaction.cancer_receptor_ligand_ranking) {
+					bw.write(res.symbol + "(" + res.expression + ")\t");
+				}
+				bw.write("\n");
+			}
+			
+			bw.close();
+			fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
 	}
 }

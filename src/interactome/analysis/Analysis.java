@@ -3,6 +3,7 @@ package interactome.analysis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 
 import interactome.Logger;
@@ -66,6 +67,8 @@ public class Analysis {
 	
 	public boolean outputResults() {
 		this.rw = ResultsWriter.createInstance(this.input, this.dp);
+		
+		Logger.logf("\nwriting results.");
 		
 		// write Refseq and Symbol files.
 		this.rw.writeRefseqFiles();
@@ -296,11 +299,14 @@ public class Analysis {
 			}
 			
 			// receptor ratio
-			interaction.cancer_ligand_receptor_ratio =
-				sum_of_receptor_expression_cancer / (sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma);
-			
+			if (sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma > 0)
+				interaction.cancer_ligand_receptor_ratio = sum_of_receptor_expression_cancer / (sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma);
+			else
+				interaction.cancer_ligand_receptor_ratio = -1;
+				
 			// receptor ranking
 			ArrayList<InteractionResult> results = new ArrayList<Analysis.InteractionResult>();
+			HashSet<String> used = new HashSet<String>();
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.ligand_symbol.equals(_inter.ligand_symbol)) {
 					double rec_expression = 0;
@@ -308,7 +314,10 @@ public class Analysis {
 						rec_expression += _inter.ginput_receptor_cancer.normalizedExpression;
 					if (_inter.ginput_receptor_stroma != null)
 						rec_expression += _inter.ginput_receptor_stroma.normalizedExpression;
-					results.add(new InteractionResult(_inter.receptor_symbol, rec_expression));
+					if (!used.contains(_inter.receptor_symbol)) {
+						results.add(new InteractionResult(_inter.receptor_symbol, rec_expression));
+						used.add(_inter.receptor_symbol);
+					}
 				}
 			}
 			Collections.sort(results);
@@ -342,11 +351,14 @@ public class Analysis {
 			}
 			
 			// receptor ratio
-			interaction.cancer_receptor_ligand_ratio =
-				sum_of_ligand_expression_cancer / (sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma);
+			if (sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma > 0)
+				interaction.cancer_receptor_ligand_ratio = sum_of_ligand_expression_cancer / (sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma);
+			else
+				interaction.cancer_receptor_ligand_ratio = -1;
 			
 			// receptor ranking
 			ArrayList<InteractionResult> results = new ArrayList<Analysis.InteractionResult>();
+			HashSet<String> used = new HashSet<String>();
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.receptor_symbol.equals(_inter.receptor_symbol)) {
 					double rec_expression = 0;
@@ -354,7 +366,10 @@ public class Analysis {
 						rec_expression += _inter.ginput_ligand_cancer.normalizedExpression;
 					if (_inter.ginput_ligand_stroma != null)
 						rec_expression += _inter.ginput_ligand_stroma.normalizedExpression;
-					results.add(new InteractionResult(_inter.ligand_symbol, rec_expression));
+					if (!used.contains(_inter.ligand_symbol)) {
+						results.add(new InteractionResult(_inter.ligand_symbol, rec_expression));
+						used.add(_inter.ligand_symbol);
+					}
 				}
 			}
 			Collections.sort(results);
@@ -388,11 +403,14 @@ public class Analysis {
 			}
 			
 			// receptor ratio
-			interaction.stroma_ligand_receptor_ratio =
-				sum_of_receptor_expression_stroma / (sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma);
+			if (sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma > 0)
+				interaction.stroma_ligand_receptor_ratio = sum_of_receptor_expression_stroma / (sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma);
+			else
+				interaction.stroma_ligand_receptor_ratio = -1;
 			
 			// receptor ranking
 			ArrayList<InteractionResult> results = new ArrayList<Analysis.InteractionResult>();
+			HashSet<String> used = new HashSet<String>();
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.ligand_symbol.equals(_inter.ligand_symbol)) {
 					double rec_expression = 0;
@@ -400,7 +418,10 @@ public class Analysis {
 						rec_expression += _inter.ginput_receptor_cancer.normalizedExpression;
 					if (_inter.ginput_receptor_stroma != null)
 						rec_expression += _inter.ginput_receptor_stroma.normalizedExpression;
-					results.add(new InteractionResult(_inter.receptor_symbol, rec_expression));
+					if (!used.contains(_inter.receptor_symbol)) {
+						results.add(new InteractionResult(_inter.receptor_symbol, rec_expression));
+						used.add(_inter.receptor_symbol);
+					}
 				}
 			}
 			Collections.sort(results);
@@ -434,11 +455,14 @@ public class Analysis {
 			}
 			
 			// receptor ratio
-			interaction.stroma_receptor_ligand_ratio =
-				sum_of_ligand_expression_stroma / (sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma);
+			if (sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma > 0)
+				interaction.stroma_receptor_ligand_ratio = sum_of_ligand_expression_stroma / (sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma);
+			else
+				interaction.stroma_receptor_ligand_ratio = -1;
 			
 			// receptor ranking
 			ArrayList<InteractionResult> results = new ArrayList<Analysis.InteractionResult>();
+			HashSet<String> used = new HashSet<String>(); 
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.receptor_symbol.equals(_inter.receptor_symbol)) {
 					double rec_expression = 0;
@@ -446,7 +470,10 @@ public class Analysis {
 						rec_expression += _inter.ginput_ligand_cancer.normalizedExpression;
 					if (_inter.ginput_ligand_stroma != null)
 						rec_expression += _inter.ginput_ligand_stroma.normalizedExpression;
-					results.add(new InteractionResult(_inter.ligand_symbol, rec_expression));
+					if (!used.contains(_inter.ligand_symbol)) {
+						results.add(new InteractionResult(_inter.ligand_symbol, rec_expression));
+						used.add(_inter.ligand_symbol);
+					}
 				}
 			}
 			Collections.sort(results);
@@ -471,8 +498,8 @@ public class Analysis {
 		@Override
 		public int compareTo(InteractionResult o) {
 			double d = o.expression - this.expression;
-			if (d < 0) return -1;
-			else if (d > 0) return 1;
+			if (d > 0) return -1;
+			else if (d < 0) return 1;
 			else return 0;
 		}
 	}
