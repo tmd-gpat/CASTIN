@@ -19,7 +19,8 @@ public abstract class Input {
 		refseq_inputs = new HashMap<String, RefseqInput>();
 		for (String refseq_id : biodb.all_refseq_ids) {
 			Refseq refseq = biodb.refseq_db.get(refseq_id);
-			refseq_inputs.put(refseq_id, new RefseqInput(refseq));
+			if (!refseq.is_invalid)
+				refseq_inputs.put(refseq_id, new RefseqInput(refseq));
 		}
 		
 		gene_inputs = new HashMap<String, GeneInput>();

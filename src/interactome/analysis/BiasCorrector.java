@@ -178,6 +178,7 @@ public class BiasCorrector {
 				}
 				
 				refinput.true_expression = sums[i] / w;
+				if (w == 0) refinput.true_expression = 0;
 			}
 		}
 		Logger.logf("bias correction done.");

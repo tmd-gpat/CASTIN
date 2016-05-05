@@ -69,6 +69,7 @@ public class Analysis {
 		
 		// write Refseq and Symbol files.
 		this.rw.writeRefseqFiles();
+		this.rw.writeSymbolFiles();
 		
 		// write KEGGHPRD-related files.
 		this.rw.writeKEGGHPRDresult();
@@ -117,14 +118,14 @@ public class Analysis {
 			
 			GeneInput geneinput = input.gene_inputs.get(entrez_id);
 			geneinput.representativeRefseq = gene.variants.get(maximum);
-			geneinput.representativeExpression = refinputs[maximum].true_expression;
+			geneinput.representativeRefseqInput = refinputs[maximum];
 		}
 		
 		// normalize of cancer gene expressions
 		// make sum of the middle 90% genes to 300,000 reads
 		double[] expressions = new double[biodb.cancer_entrez_ids.length];
 		for (int i=0; i<biodb.cancer_entrez_ids.length; i++) {
-			expressions[i] = input.gene_inputs.get(biodb.cancer_entrez_ids[i]).representativeExpression;
+			expressions[i] = input.gene_inputs.get(biodb.cancer_entrez_ids[i]).representativeRefseqInput.true_expression;
 		}
 		Arrays.sort(expressions);
 		double sum = 0;
@@ -138,13 +139,13 @@ public class Analysis {
 		}
 		for (String entrez_id : biodb.cancer_entrez_ids) {
 			GeneInput ginput = input.gene_inputs.get(entrez_id);
-			ginput.normalizedExpression = ginput.representativeExpression * 300000.0 / sum;
+			ginput.normalizedExpression = ginput.representativeRefseqInput.true_expression * 300000.0 / sum;
 		}
 
 		// normalize of stromal gene expressions
 		expressions = new double[biodb.stromal_refseq_ids.length];
 		for (int i=0; i<biodb.stromal_entrez_ids.length; i++) {
-			expressions[i] = input.gene_inputs.get(biodb.stromal_entrez_ids[i]).representativeExpression;
+			expressions[i] = input.gene_inputs.get(biodb.stromal_entrez_ids[i]).representativeRefseqInput.true_expression;
 		}
 		Arrays.sort(expressions);
 		sum = 0;
@@ -158,7 +159,7 @@ public class Analysis {
 		}
 		for (String entrez_id : biodb.stromal_entrez_ids) {
 			GeneInput ginput = input.gene_inputs.get(entrez_id);
-			ginput.normalizedExpression = ginput.representativeExpression * 300000.0 / sum;
+			ginput.normalizedExpression = ginput.representativeRefseqInput.true_expression * 300000.0 / sum;
 		}
 		Logger.logf("normalizing done.");
 	}

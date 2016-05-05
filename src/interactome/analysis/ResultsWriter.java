@@ -7,6 +7,7 @@ import java.util.Map;
 
 import interactome.Logger;
 import interactome.Option;
+import interactome.input.GeneInput;
 import interactome.input.Input;
 import interactome.input.RefseqInput;
 
@@ -32,7 +33,7 @@ public class ResultsWriter {
 	public void writeRefseqFiles() {
 		Option option = Option.getInstance();
 		
-		Logger.logf("writing Refseq Files.");
+		Logger.logf("writing Refseq files.");
 		
 		// cancer
 		ArrayList<RefseqInput> inputs = new ArrayList<RefseqInput>();
@@ -46,11 +47,35 @@ public class ResultsWriter {
 		// stroma
 		inputs.clear();
 		for (Map.Entry<String, RefseqInput> entry : this.input.refseq_inputs.entrySet()) {
-			if (entry.getValue().refseq.tax_id.equals(option.settings.get("cancer_taxonomy"))) {
+			if (entry.getValue().refseq.tax_id.equals(option.settings.get("stromal_taxonomy"))) {
 				inputs.add(entry.getValue());
 			}
 		}
 		this.writeRefseqFile("Refseq_stroma.txt", inputs.toArray(new RefseqInput[]{}));
+	}
+	
+	public void writeSymbolFiles() {
+		Option option = Option.getInstance();
+		
+		Logger.logf("writing Symbol files.");
+		
+		// cancer
+		ArrayList<GeneInput> inputs = new ArrayList<GeneInput>();
+		for (Map.Entry<String, GeneInput> entry : this.input.gene_inputs.entrySet()) {
+			if (entry.getValue().gene.tax_id.equals(option.settings.get("cancer_taxonomy"))) {
+				inputs.add(entry.getValue());
+			}
+		}
+		this.writeSymbolFile("Symbol_cancer.txt", inputs.toArray(new GeneInput[]{}));
+		
+		// stroma
+		inputs.clear();
+		for (Map.Entry<String, GeneInput> entry : this.input.gene_inputs.entrySet()) {
+			if (entry.getValue().gene.tax_id.equals(option.settings.get("stromal_taxonomy"))) {
+				inputs.add(entry.getValue());
+			}
+		}
+		this.writeSymbolFile("Symbol_stroma.txt", inputs.toArray(new GeneInput[]{}));
 	}
 	
 	private void writeRefseqFile(String filename, RefseqInput[] rows) {
@@ -93,6 +118,50 @@ public class ResultsWriter {
 					row.coverage(20),
 					row.coverage(30),
 					row.refseq.is_long_and_unmappable ? "Y" : "N",
+				};
+				for (int i=0; i<data.length; i++) {
+					bw.write(String.valueOf(data[i]));
+					if (i < data.length-1) bw.write("\t");
+					else bw.write("\n");
+				}
+			}
+			
+			bw.close();
+			fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	private void writeSymbolFile(String filename, GeneInput[] rows) {
+		Option option = Option.getInstance();
+		
+		try {
+			FileWriter fw = new FileWriter(option.output_path + "/" + filename);
+			BufferedWriter bw = new BufferedWriter(fw);
+			
+			// write header
+			String[] column_names = new String[] {
+				"Gene Symbol",
+				"Refseq ID",
+				"raw count",
+				"count (from Poly-A, GC corrected)",
+				"count (from Poly-A, GC corrected, Total=300k)",
+			};
+			for (int i=0; i<column_names.length; i++) {
+				bw.write(column_names[i]);
+				if (i<column_names.length-1) bw.write("\t");
+				else bw.write("\n");
+			}
+			
+			for (GeneInput row : rows) {
+				Object[] data = new Object[] {
+					row.gene.symbol,
+					row.representativeRefseq.refseq_id,
+					row.representativeRefseqInput.rawCount,
+					row.representativeRefseqInput.true_expression,
+					row.normalizedExpression,
 				};
 				for (int i=0; i<data.length; i++) {
 					bw.write(String.valueOf(data[i]));

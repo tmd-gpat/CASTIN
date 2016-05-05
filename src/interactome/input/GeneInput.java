@@ -6,7 +6,7 @@ import interactome.data.Refseq;
 public class GeneInput {
 	public Gene gene;
 	public Refseq representativeRefseq;
-	public double representativeExpression;
+	public RefseqInput representativeRefseqInput;
 	public double normalizedExpression;
 	
 	public GeneInput(Gene gene) {
