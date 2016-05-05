@@ -186,4 +186,20 @@ public class DynamicParameters {
 		
 		return true;
 	}
+
+	public void checkLongUnmappableRefseqs() {
+		BioDB biodb = BioDB.getInstance();
+		
+		// check long (>=10000bp), unmappable (<50%) refseqs.
+		for (String refseq_id : biodb.all_refseq_ids) {
+			Refseq refseq = biodb.refseq_db.get(refseq_id);
+			if (refseq.length > 10000) {
+				int mappable_position_count = 0;
+				for (int i=0; i<refseq.length; i++)
+					if (refseq.mappability[i] > 0) mappable_position_count++;
+				if (mappable_position_count < refseq.length/2)
+					refseq.is_long_and_unmappable = true;
+			}
+		}
+	}
 }

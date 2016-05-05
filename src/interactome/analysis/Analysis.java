@@ -47,6 +47,7 @@ public class Analysis {
 		if (!dp.calculateWeightedMappability()) {
 			return false;
 		}
+		dp.checkLongUnmappableRefseqs();
 		
 		// execute bias correction
 		BiasCorrector bc = BiasCorrector.createInstance(this.input, this.dp);
@@ -65,6 +66,9 @@ public class Analysis {
 	
 	public boolean outputResults() {
 		this.rw = ResultsWriter.createInstance(this.input, this.dp);
+		
+		// write Refseq and Symbol files.
+		this.rw.writeRefseqFiles();
 		
 		// write KEGGHPRD-related files.
 		this.rw.writeKEGGHPRDresult();

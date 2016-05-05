@@ -19,6 +19,8 @@ public class Refseq {
 
 	public ArrayList<Pair<Integer, Integer>> unmappable_regions;
 	
+	public boolean is_long_and_unmappable = false;
+	
 	public Refseq(String refseq_id) {
 		this.refseq_id = refseq_id;
 		this.is_invalid = false;

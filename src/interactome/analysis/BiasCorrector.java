@@ -15,6 +15,11 @@ public class BiasCorrector {
 	Input input;
 	DynamicParameters dynamicParameters;
 	
+	// constants
+	final int max_frompolya = 3000;
+	final int iteration_count_max = 1000;
+	final double iteration_abort_ratio = 0.005;
+	
 	double alpha = 0;
 	double beta = 0;
 	
@@ -36,11 +41,6 @@ public class BiasCorrector {
 		BioDB biodb = BioDB.getInstance();
 		
 		Logger.logf("\ncorrecting bias.");
-		
-		// constants
-		int max_frompolya = 3000;
-		int iteration_count_max = 1000;
-		double iteration_abort_ratio = 0.001;
 		
 		int n = this.dynamicParameters.parameterRefseqs.length;
 		
