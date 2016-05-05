@@ -72,7 +72,7 @@ public class Analysis {
 		this.rw.writeSymbolFiles();
 		
 		// write KEGGHPRD-related files.
-		this.rw.writeKEGGHPRDresult();
+		this.rw.writeKEGGHPRDFiles();
 		
 		return true;
 	}
@@ -234,9 +234,13 @@ public class Analysis {
 					exp_lig_cancer * exp_rec_stroma
 				);
 				// ligand ratio
-				interaction.ligand_ratio_cancer =
-					exp_lig_cancer / (exp_lig_cancer + exp_lig_stroma);
-				interaction.ligand_ratio_stroma = 1.0 - interaction.ligand_ratio_cancer;
+				if (exp_lig_cancer + exp_lig_stroma > 0) {
+					interaction.ligand_ratio_cancer = exp_lig_cancer / (exp_lig_cancer + exp_lig_stroma);
+					interaction.ligand_ratio_stroma = 1.0 - interaction.ligand_ratio_cancer;
+				} else {
+					interaction.ligand_ratio_cancer = -1;
+					interaction.ligand_ratio_stroma = -1;
+				}
 			}
 			if (interaction.valid_stroma_to_cancer) {
 				// stroma to cancer interaction average
@@ -244,9 +248,13 @@ public class Analysis {
 					exp_lig_stroma * exp_rec_cancer
 				);
 				// ligand ratio
-				interaction.ligand_ratio_cancer =
-					exp_lig_cancer / (exp_lig_cancer + exp_lig_stroma);
-				interaction.ligand_ratio_stroma = 1.0 - interaction.ligand_ratio_cancer;
+				if (exp_lig_cancer + exp_lig_stroma > 0) {
+					interaction.ligand_ratio_cancer = exp_lig_cancer / (exp_lig_cancer + exp_lig_stroma);
+					interaction.ligand_ratio_stroma = 1.0 - interaction.ligand_ratio_cancer;
+				} else {
+					interaction.ligand_ratio_cancer = -1;
+					interaction.ligand_ratio_stroma = -1;
+				}
 			}
 			// count of the other ligands
 			if (sum_of_ligand_expression_for_same_receptor > 0) {
@@ -258,6 +266,9 @@ public class Analysis {
 				interaction.receptor_ratio_stroma =
 					exp_rec_stroma / (exp_rec_cancer + exp_rec_stroma);
 				interaction.receptor_ratio_cancer = 1.0 - interaction.receptor_ratio_stroma;
+			} else {
+				interaction.receptor_ratio_stroma = -1;
+				interaction.receptor_ratio_cancer = -1;
 			}
 		}
 		

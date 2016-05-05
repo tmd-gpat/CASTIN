@@ -7,6 +7,8 @@ import java.util.Map;
 
 import interactome.Logger;
 import interactome.Option;
+import interactome.data.BioDB;
+import interactome.data.Interaction;
 import interactome.input.GeneInput;
 import interactome.input.Input;
 import interactome.input.RefseqInput;
@@ -33,8 +35,6 @@ public class ResultsWriter {
 	public void writeRefseqFiles() {
 		Option option = Option.getInstance();
 		
-		Logger.logf("writing Refseq files.");
-		
 		// cancer
 		ArrayList<RefseqInput> inputs = new ArrayList<RefseqInput>();
 		for (Map.Entry<String, RefseqInput> entry : this.input.refseq_inputs.entrySet()) {
@@ -52,12 +52,12 @@ public class ResultsWriter {
 			}
 		}
 		this.writeRefseqFile("Refseq_stroma.txt", inputs.toArray(new RefseqInput[]{}));
+		
+		Logger.logf("wrote Refseq files.");
 	}
 	
 	public void writeSymbolFiles() {
 		Option option = Option.getInstance();
-		
-		Logger.logf("writing Symbol files.");
 		
 		// cancer
 		ArrayList<GeneInput> inputs = new ArrayList<GeneInput>();
@@ -76,6 +76,14 @@ public class ResultsWriter {
 			}
 		}
 		this.writeSymbolFile("Symbol_stroma.txt", inputs.toArray(new GeneInput[]{}));
+		
+		Logger.logf("wrote Symbol files.");
+	}
+	
+	public void writeKEGGHPRDFiles() {
+		writeKEGGHPRDResult();
+		
+		Logger.logf("wrote KEGGHPRD files.");
 	}
 	
 	private void writeRefseqFile(String filename, RefseqInput[] rows) {
@@ -179,7 +187,109 @@ public class ResultsWriter {
 	}
 	
 	// KEGGHPRD_result.txt
-	public void writeKEGGHPRDresult() {
+	private void writeKEGGHPRDResult() {
+		Option option = Option.getInstance();
+		BioDB biodb = BioDB.getInstance();
+	
+		try {
+			FileWriter fw = new FileWriter(option.output_path + "/KEGGHPRD_result.txt");
+			BufferedWriter bw = new BufferedWriter(fw);
+			
+			// write header
+			String[] column_names = new String[] {
+				"ligand",
+				"receptor",
+				"count(ligand)",
+				"count(receptor)",
+				"raw count(ligand)",
+				"raw count(receptor)",
+				"average",
+				"ligand ratio",
+				"count of the other ligands",
+				"receptor ratio",
+				"interaction type",
+				"pathway",
+				"link",
+			};
+			for (int i=0; i<column_names.length; i++) {
+				bw.write(column_names[i]);
+				if (i<column_names.length-1) bw.write("\t");
+				else bw.write("\n");
+			}
+			
+			for (Interaction interaction : biodb.interactions) {
+				// cancer -> stroma
+				Object[] data;
+				if (interaction.valid_cancer_to_stroma) {
+					data = new Object[] {
+						interaction.ligand_symbol + "(cancer)",
+						interaction.receptor_symbol + "(stroma)",
+						interaction.ginput_ligand_cancer.normalizedExpression,
+						interaction.ginput_receptor_stroma.normalizedExpression,
+						interaction.ginput_ligand_cancer.representativeRefseqInput.rawCount,
+						interaction.ginput_receptor_stroma.representativeRefseqInput.rawCount,
+						interaction.average_cancer2stroma,
+						interaction.ligand_ratio_cancer == -1 ? "NA" : interaction.ligand_ratio_cancer,
+						interaction.ligand_posession_for_same_receptor,
+						interaction.receptor_ratio_stroma == -1 ? "NA" : interaction.receptor_ratio_stroma,
+						interaction.type,
+						interaction.kegg,
+						interaction.url,
+					};
+				} else {
+					data = new Object[] {
+						interaction.ligand_symbol + "(cancer)",
+						interaction.receptor_symbol + "(stroma/NA)",
+						interaction.ginput_ligand_cancer.normalizedExpression,
+						"NA",
+					};
+				}
+				for (int i=0; i<data.length; i++) {
+					bw.write(String.valueOf(data[i]));
+					if (i < data.length-1) bw.write("\t");
+					else bw.write("\n");
+				}
+				// stroma -> cancer
+				if (interaction.valid_stroma_to_cancer) {
+					data = new Object[] {
+						interaction.ligand_symbol + "(stroma)",
+						interaction.receptor_symbol + "(cancer)",
+						interaction.ginput_ligand_stroma.normalizedExpression,
+						interaction.ginput_receptor_cancer.normalizedExpression,
+						interaction.ginput_ligand_stroma.representativeRefseqInput.rawCount,
+						interaction.ginput_receptor_cancer.representativeRefseqInput.rawCount,
+						interaction.average_stroma2cancer,
+						interaction.ligand_ratio_stroma == -1 ? "NA" : interaction.ligand_ratio_stroma,
+						interaction.ligand_posession_for_same_receptor,
+						interaction.receptor_ratio_cancer == -1 ? "NA" : interaction.receptor_ratio_cancer,
+						interaction.type,
+						interaction.kegg,
+						interaction.url,
+					};
+				} else {
+					data = new Object[] {
+						interaction.ligand_symbol + "(stroma/NA)",
+						interaction.receptor_symbol + "(cancer)",
+						"NA",
+						interaction.ginput_receptor_cancer.normalizedExpression,
+					};
+				}
+				for (int i=0; i<data.length; i++) {
+					bw.write(String.valueOf(data[i]));
+					if (i < data.length-1) bw.write("\t");
+					else bw.write("\n");
+				}
+			}
+			
+			bw.close();
+			fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	private void writeKEGGHPRDResultCancerLigand() {
 		
 	}
 }
