@@ -37,7 +37,7 @@ public class BiasCorrector {
 		this.dynamicParameters = dp;
 	}
 	
-	public boolean correctBias() {
+	public void correctBias() {
 		BioDB biodb = BioDB.getInstance();
 		
 		Logger.logf("\ncorrecting bias.");
@@ -146,13 +146,10 @@ public class BiasCorrector {
 		engine.end();
 		
 		// correction for all refseqs
-		weight = new double[biodb.refseq_db.size()];
-		mappable_position_counts = new int[biodb.refseq_db.size()];
-		mappability_sums = new double[biodb.refseq_db.size()];
-		sums = new double[biodb.refseq_db.size()];
-		
-		for (int i=0; i<biodb.all_refseq_ids.length; i++) {
-			String refseq_id = biodb.all_refseq_ids[i];
+		for (String refseq_id : biodb.all_refseq_ids) {
+			double sum = 0; 			// for bias correction
+			double sum_for_v = 0; 		// for calculating regression residues
+			
 			Refseq refseq = biodb.refseq_db.get(refseq_id);
 			RefseqInput refinput = input.refseq_inputs.get(refseq_id);
 			
@@ -165,24 +162,64 @@ public class BiasCorrector {
 				}
 				
 				for (int j=0; j<refseq.length; j++) {
-					mappability_sums[i] += refseq.mappability[j];
+					refseq.mappability_sum += refseq.mappability[j];
 					if (refseq.mappability[j] > 0) {
-						mappable_position_counts[i]++;
+						refseq.mappable_position_count++;
 					}
 				}
 				
 				for (int j=0; j<refseq.length; j++) {
 					if (refseq.mappability[j] > 0) {
-						sums[i] += mappability_sums[i] / (mappable_position_counts[i] * refseq.mappability[j]) * refinput.starting_counts[j];
+						sum += refinput.starting_counts[j];
+						sum_for_v += refinput.overlap_counts[j] * refseq.mappability_sum / (refseq.mappable_position_count * refseq.mappability[j]);
 					}
 				}
 				
-				refinput.true_expression = sums[i] / w;
-				if (w == 0) refinput.true_expression = 0;
+				refinput.true_expression = sum / w;
+				refinput.v_init = sum_for_v / refseq.mappable_position_count;
+				refinput.v_end = sum_for_v / w;
+				
+				if (w == 0) {
+					refinput.true_expression = 0;
+					refinput.v_end = 0;
+				}
+				if (refseq.mappable_position_count == 0) {
+					refinput.v_init = 0;
+				}
 			}
 		}
 		Logger.logf("bias correction done.");
 		
-		return true;
+		return;
+	}
+	
+	public void calculateRegressionResidues() {
+		BioDB biodb = BioDB.getInstance();
+		
+		for (String refseq_id : biodb.all_refseq_ids) {
+			Refseq refseq = biodb.refseq_db.get(refseq_id);
+			RefseqInput rinput = input.refseq_inputs.get(refseq_id);
+			if (refseq == null || rinput == null) continue;
+			
+			for (int i=0; i<refseq.length; i++) {
+				if (refseq.mappability[i] == 0 || rinput.overlap_counts[i] == 0) {
+					rinput.residue_init[i] = Float.NaN;
+					rinput.residue_end[i] = Float.NaN;
+					continue;
+				}
+				
+				// init
+				rinput.residue_init[i] = (float)(
+					Math.log(rinput.overlap_counts[i])
+					- Math.log(rinput.v_init * refseq.mappable_position_count * refseq.mappability[i] / refseq.mappability_sum));
+				
+				// end
+				rinput.residue_end[i] = (float)(
+					Math.log(rinput.overlap_counts[i])
+					- Math.log(rinput.v_end * refseq.mappable_position_count * refseq.mappability[i] / refseq.mappability_sum)
+					- alpha * refseq.gc_percent[i]
+					- beta * (refseq.length - i));
+			}
+		}
 	}
 }

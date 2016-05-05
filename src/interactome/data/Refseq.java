@@ -21,6 +21,9 @@ public class Refseq {
 	
 	public boolean is_long_and_unmappable = false;
 	
+	public int mappable_position_count = 0;
+	public double mappability_sum = 0;
+	
 	public Refseq(String refseq_id) {
 		this.refseq_id = refseq_id;
 		this.is_invalid = false;

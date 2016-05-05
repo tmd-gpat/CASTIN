@@ -193,7 +193,7 @@ public class ResultsWriter {
 		}
 	}
 	
-	// KEGGHPRD_result.txt
+	// KEGGHPRD_result(_cancer/stroma_ligand/receptor).txt
 	private void writeKEGGHPRDResult() {
 		Option option = Option.getInstance();
 		BioDB biodb = BioDB.getInstance();
@@ -529,5 +529,27 @@ public class ResultsWriter {
 			e.printStackTrace();
 			return;
 		}
+	}
+
+	/*
+	 * draw heat maps where X-axis = poly-a dist, Y-axis = residue of regression equation for before/after correction:
+	 * log(C_i_j) = log( mappability_ratio * v_i ) + (gc %) * alpha + (poly-A) * beta + [Residue]
+	 * 	 C_i_j = count of reads overlapping position j of gene i
+	 *   mappability_ratio = refer to the original paper
+	 *   v_i = expression
+	 * 
+	 * before: v = v^1_i, alpha = beta = 0
+	 * after : v = true_expression, alpha = alpha', beta = beta'
+	 */
+	private void drawPolyAHeatMap(String prefix, RefseqInput[] rinputs) {
+		Option option = Option.getInstance();
+		BioDB biodb = BioDB.getInstance();
+		
+//		double residue_min = -15;
+//		double 
+	}
+	
+	private void drawGCHeatMap(RefseqInput[] rinputs) {
+		
 	}
 }

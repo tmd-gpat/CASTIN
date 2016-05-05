@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/java-getopt-1.0.14.jar"/>
 	<classpathentry kind="lib" path="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/rJava/jri/JRI.jar"/>
+	<classpathentry kind="lib" path="lib/jheatchart-0.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

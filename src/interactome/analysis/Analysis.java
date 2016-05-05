@@ -44,17 +44,16 @@ public class Analysis {
 		
 		// calculate dynamic parameters
 		this.dp = DynamicParameters.createInstance(this.input);
-		dp.selectParameterRefseqs();
 		if (!dp.calculateWeightedMappability()) {
 			return false;
 		}
+		dp.selectParameterRefseqs();
 		dp.checkLongUnmappableRefseqs();
 		
 		// execute bias correction
 		BiasCorrector bc = BiasCorrector.createInstance(this.input, this.dp);
-		if (!bc.correctBias()) {
-			return false;
-		}
+		bc.correctBias();
+		bc.calculateRegressionResidues();
 		
 		// normalize expression sums
 		this.normalize();
@@ -166,7 +165,7 @@ public class Analysis {
 		}
 		Logger.logf("normalizing done.");
 	}
-
+	
 	private void analyzeInteraction() {
 		BioDB biodb = BioDB.getInstance();
 
@@ -485,7 +484,7 @@ public class Analysis {
 		
 		Logger.logf("analyzing interaction done.");
 	}
-	
+
 	public class InteractionResult implements Comparable<InteractionResult> {
 		public String symbol;
 		public double expression;

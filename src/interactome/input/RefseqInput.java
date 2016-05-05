@@ -11,6 +11,11 @@ public class RefseqInput {
 
 	public double true_expression;
 	
+	public double v_init; // initial value of correction
+	public double v_end; // ending value of correction
+	public float[] residue_init;
+	public float[] residue_end;
+	
 	public double coverage(int depth) {
 		int covered = 0;
 		for (int i=0; i<this.refseq.length; i++) {
@@ -25,6 +30,9 @@ public class RefseqInput {
 		if (!refseq.is_invalid) {
 			this.overlap_counts = new long[refseq.length];
 			this.starting_counts = new long[refseq.length];
+
+			this.residue_init = new float[refseq.length];
+			this.residue_end = new float[refseq.length];
 		}
 	}
 }
