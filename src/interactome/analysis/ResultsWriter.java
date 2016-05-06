@@ -258,10 +258,10 @@ public class ResultsWriter {
 					data = new Object[] {
 						interaction.ligand_symbol + "(cancer)",
 						interaction.receptor_symbol + "(stroma)",
-						interaction.ginput_ligand_cancer.normalizedExpression,
-						interaction.ginput_receptor_stroma.normalizedExpression,
-						interaction.ginput_ligand_cancer.representativeRefseqInput.rawCount,
-						interaction.ginput_receptor_stroma.representativeRefseqInput.rawCount,
+						interaction.expression_ligand_cancer,
+						interaction.expression_receptor_stroma,
+						interaction.raw_ligand_cancer,
+						interaction.raw_receptor_stroma,
 						interaction.average_cancer2stroma,
 						interaction.ligand_ratio_cancer == -1 ? "NA" : interaction.ligand_ratio_cancer,
 						interaction.ligand_posession_for_same_receptor,
@@ -274,7 +274,7 @@ public class ResultsWriter {
 					data = new Object[] {
 						interaction.ligand_symbol + "(cancer)",
 						interaction.receptor_symbol + "(stroma/NA)",
-						interaction.ginput_ligand_cancer.normalizedExpression,
+						interaction.expression_ligand_cancer,
 						"NA",
 					};
 				}
@@ -288,10 +288,10 @@ public class ResultsWriter {
 					data = new Object[] {
 						interaction.ligand_symbol + "(stroma)",
 						interaction.receptor_symbol + "(cancer)",
-						interaction.ginput_ligand_stroma.normalizedExpression,
-						interaction.ginput_receptor_cancer.normalizedExpression,
-						interaction.ginput_ligand_stroma.representativeRefseqInput.rawCount,
-						interaction.ginput_receptor_cancer.representativeRefseqInput.rawCount,
+						interaction.expression_ligand_stroma,
+						interaction.expression_receptor_cancer,
+						interaction.raw_ligand_stroma,
+						interaction.raw_receptor_cancer,
 						interaction.average_stroma2cancer,
 						interaction.ligand_ratio_stroma == -1 ? "NA" : interaction.ligand_ratio_stroma,
 						interaction.ligand_posession_for_same_receptor,
@@ -305,7 +305,7 @@ public class ResultsWriter {
 						interaction.ligand_symbol + "(stroma/NA)",
 						interaction.receptor_symbol + "(cancer)",
 						"NA",
-						interaction.ginput_receptor_cancer.normalizedExpression,
+						interaction.expression_receptor_cancer,
 					};
 				}
 				for (int i=0; i<data.length; i++) {

@@ -178,30 +178,26 @@ public class Analysis {
 			// select cancer-ligand
 			for (Gene gene : interaction.ligand_cancer) {
 				GeneInput ginput = input.gene_inputs.get(gene.entrez_id);
-				if (interaction.ginput_ligand_cancer == null || 
-					interaction.ginput_ligand_cancer.normalizedExpression < ginput.normalizedExpression)
-					interaction.ginput_ligand_cancer = ginput;
+				interaction.expression_ligand_cancer += ginput.normalizedExpression;
+				interaction.raw_ligand_cancer += ginput.representativeRefseqInput.rawCount;
 			}
 			// select stromal-ligand
 			for (Gene gene : interaction.ligand_stroma) {
 				GeneInput ginput = input.gene_inputs.get(gene.entrez_id);
-				if (interaction.ginput_ligand_stroma == null || 
-					interaction.ginput_ligand_stroma.normalizedExpression < ginput.normalizedExpression)
-					interaction.ginput_ligand_stroma = ginput;
+				interaction.expression_ligand_stroma += ginput.normalizedExpression;
+				interaction.raw_ligand_stroma += ginput.representativeRefseqInput.rawCount;
 			}
 			// select cancer-receptor
 			for (Gene gene : interaction.receptor_cancer) {
 				GeneInput ginput = input.gene_inputs.get(gene.entrez_id);
-				if (interaction.ginput_receptor_cancer == null || 
-					interaction.ginput_receptor_cancer.normalizedExpression < ginput.normalizedExpression)
-					interaction.ginput_receptor_cancer = ginput;
+				interaction.expression_receptor_cancer += ginput.normalizedExpression;
+				interaction.raw_receptor_cancer += ginput.representativeRefseqInput.rawCount;
 			}
 			// select stromal-receptor
 			for (Gene gene : interaction.receptor_stroma) {
 				GeneInput ginput = input.gene_inputs.get(gene.entrez_id);
-				if (interaction.ginput_receptor_stroma == null || 
-					interaction.ginput_receptor_stroma.normalizedExpression < ginput.normalizedExpression)
-					interaction.ginput_receptor_stroma = ginput;
+				interaction.expression_receptor_stroma += ginput.normalizedExpression;
+				interaction.raw_receptor_stroma += ginput.representativeRefseqInput.rawCount;
 			}
 		}
 
@@ -209,27 +205,17 @@ public class Analysis {
 		 * KEGGHPRD_result
 		 */
 		for (Interaction interaction : biodb.interactions) {
-			double exp_lig_cancer = 0;
-			if (interaction.ginput_ligand_cancer != null)
-				exp_lig_cancer = interaction.ginput_ligand_cancer.normalizedExpression;
-			double exp_rec_cancer = 0;
-			if (interaction.ginput_receptor_cancer != null)
-				exp_rec_cancer = interaction.ginput_receptor_cancer.normalizedExpression;
-			double exp_lig_stroma = 0;
-			if (interaction.ginput_ligand_stroma != null)
-				exp_lig_stroma = interaction.ginput_ligand_stroma.normalizedExpression;
-			double exp_rec_stroma = 0;
-			if (interaction.ginput_receptor_stroma != null)
-				exp_rec_stroma = interaction.ginput_receptor_stroma.normalizedExpression;
+			double exp_lig_cancer = interaction.expression_ligand_cancer;
+			double exp_rec_cancer = interaction.expression_receptor_cancer;
+			double exp_lig_stroma = interaction.expression_ligand_stroma;
+			double exp_rec_stroma = interaction.expression_receptor_stroma;
 			
 			// sum of other ligand expression
 			double sum_of_ligand_expression_for_same_receptor = 0;
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.receptor_symbol.equals(_inter.receptor_symbol)) {
-					if (_inter.ginput_ligand_cancer != null)
-						sum_of_ligand_expression_for_same_receptor += _inter.ginput_ligand_cancer.normalizedExpression;
-					if (_inter.ginput_ligand_stroma != null)
-						sum_of_ligand_expression_for_same_receptor += _inter.ginput_ligand_stroma.normalizedExpression;
+					sum_of_ligand_expression_for_same_receptor += _inter.expression_ligand_cancer;
+					sum_of_ligand_expression_for_same_receptor += _inter.expression_ligand_stroma;
 				}
 			}
 			
@@ -286,19 +272,15 @@ public class Analysis {
 			double sum_of_receptor_expression_stroma = 0;
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.ligand_symbol.equals(_inter.ligand_symbol)) {
-					if (_inter.ginput_receptor_cancer != null)
-						sum_of_receptor_expression_cancer += _inter.ginput_receptor_cancer.normalizedExpression;
-					if (_inter.ginput_receptor_stroma != null)
-						sum_of_receptor_expression_stroma += _inter.ginput_receptor_stroma.normalizedExpression;
+					sum_of_receptor_expression_cancer += _inter.expression_receptor_cancer;
+					sum_of_receptor_expression_stroma += _inter.expression_receptor_stroma;
 				}
 			}
 			
 			// average
-			if (interaction.ginput_ligand_cancer != null) { 
-				interaction.cancer_ligand_average = Math.sqrt(
-					(sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma)
-					* interaction.ginput_ligand_cancer.normalizedExpression);
-			}
+			interaction.cancer_ligand_average = Math.sqrt(
+				(sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma)
+				* interaction.expression_ligand_cancer);
 			
 			// receptor ratio
 			if (sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma > 0)
@@ -312,10 +294,8 @@ public class Analysis {
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.ligand_symbol.equals(_inter.ligand_symbol)) {
 					double rec_expression = 0;
-					if (_inter.ginput_receptor_cancer != null)
-						rec_expression += _inter.ginput_receptor_cancer.normalizedExpression;
-					if (_inter.ginput_receptor_stroma != null)
-						rec_expression += _inter.ginput_receptor_stroma.normalizedExpression;
+					rec_expression += _inter.expression_receptor_cancer;
+					rec_expression += _inter.expression_receptor_stroma;
 					if (!used.contains(_inter.receptor_symbol)) {
 						results.add(new InteractionResult(_inter.receptor_symbol, rec_expression));
 						used.add(_inter.receptor_symbol);
@@ -338,19 +318,15 @@ public class Analysis {
 			double sum_of_ligand_expression_stroma = 0;
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.receptor_symbol.equals(_inter.receptor_symbol)) {
-					if (_inter.ginput_ligand_cancer != null)
-						sum_of_ligand_expression_cancer += _inter.ginput_ligand_cancer.normalizedExpression;
-					if (_inter.ginput_ligand_stroma != null)
-						sum_of_ligand_expression_stroma += _inter.ginput_ligand_stroma.normalizedExpression;
+					sum_of_ligand_expression_cancer += _inter.expression_ligand_cancer;
+					sum_of_ligand_expression_stroma += _inter.expression_ligand_stroma;
 				}
 			}
 			
 			// average
-			if (interaction.ginput_receptor_cancer != null) { 
-				interaction.cancer_receptor_average = Math.sqrt(
-					(sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma)
-					* interaction.ginput_receptor_cancer.normalizedExpression);
-			}
+			interaction.cancer_receptor_average = Math.sqrt(
+				(sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma)
+				* interaction.expression_receptor_cancer);
 			
 			// receptor ratio
 			if (sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma > 0)
@@ -358,18 +334,16 @@ public class Analysis {
 			else
 				interaction.cancer_receptor_ligand_ratio = -1;
 			
-			// receptor ranking
+			// ligand ranking
 			ArrayList<InteractionResult> results = new ArrayList<Analysis.InteractionResult>();
 			HashSet<String> used = new HashSet<String>();
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.receptor_symbol.equals(_inter.receptor_symbol)) {
-					double rec_expression = 0;
-					if (_inter.ginput_ligand_cancer != null)
-						rec_expression += _inter.ginput_ligand_cancer.normalizedExpression;
-					if (_inter.ginput_ligand_stroma != null)
-						rec_expression += _inter.ginput_ligand_stroma.normalizedExpression;
+					double lig_expression = 0;
+					lig_expression += _inter.expression_ligand_cancer;
+					lig_expression += _inter.expression_ligand_stroma;
 					if (!used.contains(_inter.ligand_symbol)) {
-						results.add(new InteractionResult(_inter.ligand_symbol, rec_expression));
+						results.add(new InteractionResult(_inter.ligand_symbol, lig_expression));
 						used.add(_inter.ligand_symbol);
 					}
 				}
@@ -390,19 +364,15 @@ public class Analysis {
 			double sum_of_receptor_expression_stroma = 0;
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.ligand_symbol.equals(_inter.ligand_symbol)) {
-					if (_inter.ginput_receptor_cancer != null)
-						sum_of_receptor_expression_cancer += _inter.ginput_receptor_cancer.normalizedExpression;
-					if (_inter.ginput_receptor_stroma != null)
-						sum_of_receptor_expression_stroma += _inter.ginput_receptor_stroma.normalizedExpression;
+					sum_of_receptor_expression_cancer += _inter.expression_receptor_cancer;
+					sum_of_receptor_expression_stroma += _inter.expression_receptor_stroma;
 				}
 			}
 			
 			// average
-			if (interaction.ginput_ligand_stroma != null) { 
-				interaction.stroma_ligand_average = Math.sqrt(
-					(sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma)
-					* interaction.ginput_ligand_stroma.normalizedExpression);
-			}
+			interaction.stroma_ligand_average = Math.sqrt(
+				(sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma)
+				* interaction.expression_ligand_stroma);
 			
 			// receptor ratio
 			if (sum_of_receptor_expression_cancer + sum_of_receptor_expression_stroma > 0)
@@ -416,10 +386,8 @@ public class Analysis {
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.ligand_symbol.equals(_inter.ligand_symbol)) {
 					double rec_expression = 0;
-					if (_inter.ginput_receptor_cancer != null)
-						rec_expression += _inter.ginput_receptor_cancer.normalizedExpression;
-					if (_inter.ginput_receptor_stroma != null)
-						rec_expression += _inter.ginput_receptor_stroma.normalizedExpression;
+					rec_expression += _inter.expression_receptor_cancer;
+					rec_expression += _inter.expression_receptor_stroma;
 					if (!used.contains(_inter.receptor_symbol)) {
 						results.add(new InteractionResult(_inter.receptor_symbol, rec_expression));
 						used.add(_inter.receptor_symbol);
@@ -442,19 +410,15 @@ public class Analysis {
 			double sum_of_ligand_expression_stroma = 0;
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.receptor_symbol.equals(_inter.receptor_symbol)) {
-					if (_inter.ginput_ligand_cancer != null)
-						sum_of_ligand_expression_cancer += _inter.ginput_ligand_cancer.normalizedExpression;
-					if (_inter.ginput_ligand_stroma != null)
-						sum_of_ligand_expression_stroma += _inter.ginput_ligand_stroma.normalizedExpression;
+					sum_of_ligand_expression_cancer += _inter.expression_ligand_cancer;
+					sum_of_ligand_expression_stroma += _inter.expression_ligand_stroma;
 				}
 			}
 			
 			// average
-			if (interaction.ginput_receptor_stroma != null) { 
-				interaction.stroma_receptor_average = Math.sqrt(
-					(sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma)
-					* interaction.ginput_receptor_stroma.normalizedExpression);
-			}
+			interaction.stroma_receptor_average = Math.sqrt(
+				(sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma)
+				* interaction.expression_receptor_stroma);
 			
 			// receptor ratio
 			if (sum_of_ligand_expression_cancer + sum_of_ligand_expression_stroma > 0)
@@ -462,18 +426,16 @@ public class Analysis {
 			else
 				interaction.stroma_receptor_ligand_ratio = -1;
 			
-			// receptor ranking
+			// ligand ranking
 			ArrayList<InteractionResult> results = new ArrayList<Analysis.InteractionResult>();
 			HashSet<String> used = new HashSet<String>(); 
 			for (Interaction _inter : biodb.interactions) {
 				if (interaction.receptor_symbol.equals(_inter.receptor_symbol)) {
-					double rec_expression = 0;
-					if (_inter.ginput_ligand_cancer != null)
-						rec_expression += _inter.ginput_ligand_cancer.normalizedExpression;
-					if (_inter.ginput_ligand_stroma != null)
-						rec_expression += _inter.ginput_ligand_stroma.normalizedExpression;
+					double lig_expression = 0;
+					lig_expression += _inter.expression_ligand_cancer;
+					lig_expression += _inter.expression_ligand_stroma;
 					if (!used.contains(_inter.ligand_symbol)) {
-						results.add(new InteractionResult(_inter.ligand_symbol, rec_expression));
+						results.add(new InteractionResult(_inter.ligand_symbol, lig_expression));
 						used.add(_inter.ligand_symbol);
 					}
 				}

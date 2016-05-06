@@ -1,7 +1,6 @@
 package interactome.data;
 
 import interactome.analysis.Analysis;
-import interactome.input.GeneInput;
 
 public class Interaction {
 	public int id;
@@ -12,8 +11,16 @@ public class Interaction {
 	public boolean valid_stroma_to_cancer = true;
 	
 	// analyze results
-	public GeneInput ginput_ligand_cancer = null, ginput_ligand_stroma = null;
-	public GeneInput ginput_receptor_cancer = null, ginput_receptor_stroma = null;
+	public double expression_ligand_cancer = 0;
+	public double expression_ligand_stroma = 0;
+	public double expression_receptor_cancer = 0;
+	public double expression_receptor_stroma = 0;
+	
+	public long raw_ligand_cancer = 0;
+	public long raw_ligand_stroma = 0;
+	public long raw_receptor_cancer = 0;
+	public long raw_receptor_stroma = 0;
+
 	public double average_cancer2stroma;
 	public double average_stroma2cancer;
 	public double ligand_ratio_cancer;

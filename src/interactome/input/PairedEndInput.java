@@ -56,7 +56,7 @@ public class PairedEndInput extends Input {
 			for (int j=0; j<length_stat.length; j++) length_stat[j] = 0;
 			
 			for (i=0; ; i++) {
-				if (i%1000000 == 0) {
+				if (i%1_000_000 == 0) {
 					Logger.logf("processed %d reads.", i);
 				}
 				
