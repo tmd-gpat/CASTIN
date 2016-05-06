@@ -175,10 +175,10 @@ public class PairedEndInput extends Input {
 						
 						int pos_a = data.pos_a.get(0);
 						int pos_b = data.pos_b.get(0);
-						int wrapped_length = Math.abs(pos_a - pos_b) + option.input_paired_length;
+						int lapped_length = Math.abs(pos_a - pos_b) + option.input_paired_length;
 						this.incrementPair(entry.getKey(), pos_a, pos_b);
-						if (wrapped_length < length_stat.length) {
-							length_stat[wrapped_length]++;
+						if (lapped_length < length_stat.length) {
+							length_stat[lapped_length]++;
 						}
 						valid_read = true;
 					} else if (data.pos_a.size() > 0 && data.pos_b.size() > 0) {
@@ -213,12 +213,12 @@ public class PairedEndInput extends Input {
 			sd /= count;
 			sd = Math.sqrt(sd);
 			
-			Logger.logf("average wrapped length = %f (sd = %f)", average, sd);
+			Logger.logf("average overlapped length = %f (sd = %f)", average, sd);
 			
 			// process reserved multiple-multiple detections
-			// positions whose wrap-length is most close to the average are accepted
+			// positions whose overlap-length is most close to the average are accepted
 			for (DetectedData detect : reservation) {
-				int best_wrap_length = Integer.MAX_VALUE;
+				int best_lap_length = Integer.MAX_VALUE;
 				int final_pos_a = 0;
 				int final_pos_b = 0;
 				for (int x=0; x<detect.pos_a.size(); x++) {
@@ -229,17 +229,17 @@ public class PairedEndInput extends Input {
 						boolean rev_b = detect.reverse_b.get(y);
 						if (rev_a == rev_b) continue;
 						
-						int wrap_length = Math.abs(pos_a - pos_b) + option.input_paired_length;
-						if (Math.abs(wrap_length - average) < Math.abs(best_wrap_length - average)
-							&& Math.abs(wrap_length - average) < sd*2) {
-							best_wrap_length = wrap_length;
+						int lap_length = Math.abs(pos_a - pos_b) + option.input_paired_length;
+						if (Math.abs(lap_length - average) < Math.abs(best_lap_length - average)
+							&& Math.abs(lap_length - average) < sd*2) {
+							best_lap_length = lap_length;
 							final_pos_a = pos_a;
 							final_pos_b = pos_b;
 						}
 					}
 				}
 				
-				if (best_wrap_length < Integer.MAX_VALUE) {
+				if (best_lap_length < Integer.MAX_VALUE) {
 					this.incrementPair(detect.refseq, final_pos_a, final_pos_b);
 					if (detect.refseq.tax_id.equals(option.settings.get("cancer_taxonomy"))) {
 						cancer_read_count++;
