@@ -384,6 +384,9 @@ public class BioDB {
 	private boolean calculateGCPercent(String refMrna_filename) {
 		Logger.logf("\ncalculating GC percents for " + refMrna_filename);
 		Option option = Option.getInstance();
+
+		// DEBUG
+		long[] gc_dist = new long[101];
 		
 		try {
 			// load cancer refMrna
@@ -394,6 +397,7 @@ public class BioDB {
 			String sequence = "";
 			String current_refseq = "";
 			int processed_refseqs = 0;
+			
 			while ((l = br.readLine()) != null) {
 				if (l.charAt(0) == '>') {
 					if (!current_refseq.equals("")) {
@@ -402,7 +406,7 @@ public class BioDB {
 						int[] is_gc_array = new int[sequence.length() + 2*n - 2];
 						for (int i=0; i<sequence.length(); i++) {
 							if (sequence.charAt(i) == 'g' || sequence.charAt(i) == 'c') {
-								is_gc_array[i + option.read_length - 1] = 1;
+								is_gc_array[i + n - 1] = 1;
 							}
 						}
 
@@ -429,9 +433,10 @@ public class BioDB {
 						Refseq refseq = this.refseq_db.get(current_refseq);
 						refseq.gc_percent = new short[refseq.length];
 						for (int i=0; i<sequence.length(); i++) {
-							int count = Math.min(i+n-1, sequence.length()-1) - Math.max(i-n+1, 0);
+							int count = Math.min(i+n-1, sequence.length()-1) - Math.max(i-n+1, 0) + 1;
 							double gc_ratio = (double) gc_counts[i] / count;
 							refseq.gc_percent[i] = (short)(gc_ratio * 100);
+							gc_dist[refseq.gc_percent[i]]++;
 						}
 						
 						processed_refseqs++;

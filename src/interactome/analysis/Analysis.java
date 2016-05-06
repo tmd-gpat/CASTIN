@@ -76,6 +76,9 @@ public class Analysis {
 		// write KEGGHPRD-related files.
 		this.rw.writeKEGGHPRDFiles();
 		
+		// write heatmaps
+		this.rw.drawHeatmaps();
+		
 		return true;
 	}
 	

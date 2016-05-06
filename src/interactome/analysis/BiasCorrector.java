@@ -201,6 +201,8 @@ public class BiasCorrector {
 			RefseqInput rinput = input.refseq_inputs.get(refseq_id);
 			if (refseq == null || rinput == null) continue;
 			
+			rinput.residue_init = new float[refseq.length];
+			rinput.residue_end = new float[refseq.length];
 			for (int i=0; i<refseq.length; i++) {
 				if (refseq.mappability[i] == 0 || rinput.overlap_counts[i] == 0) {
 					rinput.residue_init[i] = Float.NaN;

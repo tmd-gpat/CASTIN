@@ -1,16 +1,23 @@
 package interactome.analysis;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+
+import org.tc33.jheatchart.HeatChart;
 
 import interactome.Logger;
 import interactome.Option;
 import interactome.analysis.Analysis.InteractionResult;
 import interactome.data.BioDB;
 import interactome.data.Interaction;
+import interactome.data.Refseq;
 import interactome.input.GeneInput;
 import interactome.input.Input;
 import interactome.input.RefseqInput;
@@ -91,6 +98,26 @@ public class ResultsWriter {
 		writeKEGGHPRDResultStromaReceptor();
 		
 		Logger.logf("wrote KEGGHPRD files.");
+	}
+	
+	public void drawHeatmaps() {
+		// all
+		drawPolyAHeatMap("from-poly-A", input.refseq_inputs.values(), false);
+		drawPolyAHeatMap("from-poly-A", input.refseq_inputs.values(), true);
+		drawGCHeatMap("GC", input.refseq_inputs.values(), false);
+		drawGCHeatMap("GC", input.refseq_inputs.values(), true);
+		
+		// estimator
+		ArrayList<RefseqInput> estim_rinputs = new ArrayList<RefseqInput>();
+		for (int i=0; i<dynamicParameters.parameterRefseqs.length; i++) {
+			estim_rinputs.add(input.refseq_inputs.get(dynamicParameters.parameterRefseqs[i].refseq_id));
+		}
+		drawPolyAHeatMap("from-poly-A_estim", estim_rinputs, false);
+		drawPolyAHeatMap("from-poly-A_estim", estim_rinputs, true);
+		drawGCHeatMap("GC_estim", estim_rinputs, false);
+		drawGCHeatMap("GC_estim", estim_rinputs, true);
+		
+		Logger.logf("wrote heatmaps.");
 	}
 	
 	private void writeRefseqFile(String filename, RefseqInput[] rows) {
@@ -541,15 +568,145 @@ public class ResultsWriter {
 	 * before: v = v^1_i, alpha = beta = 0
 	 * after : v = true_expression, alpha = alpha', beta = beta'
 	 */
-	private void drawPolyAHeatMap(String prefix, RefseqInput[] rinputs) {
+	private void drawPolyAHeatMap(String prefix, Collection<RefseqInput> rinputs, boolean after) {
 		Option option = Option.getInstance();
-		BioDB biodb = BioDB.getInstance();
 		
-//		double residue_min = -15;
-//		double 
+		double residue_min = -15;
+		double residue_max = 15;
+		int polya_min = 0;
+		int polya_max = 20000;
+		
+		int x_split = 200;
+		int y_split = 200;
+		
+		double[][] data = new double[y_split+1][x_split+1];
+		
+		for (RefseqInput rinput : input.refseq_inputs.values()) {
+			Refseq refseq = rinput.refseq;
+			for (int i=0; i<rinput.refseq.length; i++) {
+				if ((!after && Float.isNaN(rinput.residue_init[i])) || (after && Float.isNaN(rinput.residue_end[i])) ) continue;
+				int x = (int)Math.round((double)(refseq.length - i) / (polya_max - polya_min) * x_split);
+				if (x >= x_split) continue;
+				
+				float left = after ? rinput.residue_end[i] : rinput.residue_init[i];
+				int y = (int)Math.round((residue_max - left) / (residue_max - residue_min) * y_split);
+				if (y < 0) continue;
+				if (y >= y_split) continue;
+				
+				data[y][x]++;
+			}
+		}
+		
+		try {
+			HeatChart heatmap = new HeatChart(data);
+			heatmap.setBackgroundColour(new Color(0, 0, 0));
+			heatmap.setHighValueColour(new Color(0, 255, 0));
+			heatmap.setLowValueColour(new Color(0, 0, 0));
+			heatmap.setAxisColour(new Color(255, 255, 255));
+			heatmap.setAxisLabelColour(new Color(255, 255, 255));
+			heatmap.setAxisValuesColour(new Color(255, 255, 255));
+			heatmap.setAxisLabelsFont(new Font("SansSerif", Font.PLAIN, 72));
+			heatmap.setAxisValuesFont(new Font("SansSerif", Font.PLAIN, 64));
+			heatmap.setColourScale(0.8);
+			heatmap.setXAxisLabel("from poly-A");
+			heatmap.setYAxisLabel("regression residue");
+			heatmap.setChartMargin(32);
+			
+			Object[] x_values = new Object[x_split+1];
+			Object[] y_values = new Object[y_split+1];
+			for (int i=0; i<=x_split; i++) {
+				x_values[i] = polya_min + (polya_max - polya_min) / x_split * i;
+			}
+			for (int i=0; i<=y_split; i++) {
+				y_values[i] = residue_max - (residue_max - residue_min) / y_split * i;
+			}
+			heatmap.setXValues(x_values);
+			heatmap.setYValues(y_values);
+			heatmap.setXAxisValuesFrequency(20);
+			heatmap.setYAxisValuesFrequency(20);
+			heatmap.setShowXAxisValues(true);
+			heatmap.setShowYAxisValues(true);
+			
+			heatmap.saveToFile(
+				new File(option.output_path + "/" + prefix + "_" + (after ? "after" : "before") + "_correction.png"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
-	private void drawGCHeatMap(RefseqInput[] rinputs) {
+
+	/*
+	 * draw heat maps where X-axis = gc%, Y-axis = residue of regression equation for before/after correction:
+	 * log(C_i_j) = log( mappability_ratio * v_i ) + (gc %) * alpha + (poly-A) * beta + [Residue]
+	 * 	 C_i_j = count of reads overlapping position j of gene i
+	 *   mappability_ratio = refer to the original paper
+	 *   v_i = expression
+	 * 
+	 * before: v = v^1_i, alpha = beta = 0
+	 * after : v = true_expression, alpha = alpha', beta = beta'
+	 */
+	private void drawGCHeatMap(String prefix, Collection<RefseqInput> rinputs, boolean after) {
+		Option option = Option.getInstance();
 		
+		double residue_min = -15;
+		double residue_max = 15;
+		int gc_min = 0;
+		int gc_max = 100;
+		
+		int x_split = 100;
+		int y_split = 100;
+		
+		double[][] data = new double[y_split+1][x_split+1];
+		
+		for (RefseqInput rinput : input.refseq_inputs.values()) {
+			Refseq refseq = rinput.refseq;
+			for (int i=0; i<rinput.refseq.length; i++) {
+				if ((!after && Float.isNaN(rinput.residue_init[i])) || (after && Float.isNaN(rinput.residue_end[i])) ) continue;
+				int x = (int)Math.round((double)refseq.gc_percent[i] / (gc_max - gc_min) * x_split);
+				if (x >= x_split) continue;
+				
+				float left = after ? rinput.residue_end[i] : rinput.residue_init[i];
+				int y = (int)Math.round((residue_max - left) / (residue_max - residue_min) * y_split);
+				if (y < 0) continue;
+				if (y >= y_split) continue;
+				
+				data[y][x]++;
+			}
+		}
+		
+		try {
+			HeatChart heatmap = new HeatChart(data);
+			heatmap.setBackgroundColour(new Color(0, 0, 0));
+			heatmap.setHighValueColour(new Color(0, 255, 0));
+			heatmap.setLowValueColour(new Color(0, 0, 0));
+			heatmap.setAxisColour(new Color(255, 255, 255));
+			heatmap.setAxisLabelColour(new Color(255, 255, 255));
+			heatmap.setAxisValuesColour(new Color(255, 255, 255));
+			heatmap.setAxisLabelsFont(new Font("SansSerif", Font.PLAIN, 36));
+			heatmap.setAxisValuesFont(new Font("SansSerif", Font.PLAIN, 32));
+			heatmap.setColourScale(0.8);
+			heatmap.setXAxisLabel("GC %");
+			heatmap.setYAxisLabel("regression residue");
+			heatmap.setChartMargin(32);
+			
+			Object[] x_values = new Object[x_split+1];
+			Object[] y_values = new Object[y_split+1];
+			for (int i=0; i<=x_split; i++) {
+				x_values[i] = gc_min + (gc_max - gc_min) / x_split * i;
+			}
+			for (int i=0; i<=y_split; i++) {
+				y_values[i] = residue_max - (residue_max - residue_min) / y_split * i;
+			}
+			heatmap.setXValues(x_values);
+			heatmap.setYValues(y_values);
+			heatmap.setXAxisValuesFrequency(10);
+			heatmap.setYAxisValuesFrequency(10);
+			heatmap.setShowXAxisValues(true);
+			heatmap.setShowYAxisValues(true);
+			
+			heatmap.saveToFile(
+				new File(option.output_path + "/" + prefix + "_" + (after ? "after" : "before") + "_correction.png"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
