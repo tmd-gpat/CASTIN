@@ -11,8 +11,8 @@
     <path id="Analysis.classpath">
         <pathelement location="bin"/>
         <pathelement location="lib/java-getopt-1.0.14.jar"/>
-        <pathelement location="../../../../../Library/Frameworks/R.framework/Versions/3.1/Resources/library/rJava/jri/JRI.jar"/>
         <pathelement location="lib/jheatchart-0.6.jar"/>
+        <pathelement location="lib/JRI.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
