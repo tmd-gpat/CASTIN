@@ -24,7 +24,7 @@ public class DynamicParameters {
 	final double minimum_coverage = 0.8;
 	final int minimum_coverage_depth = 1;
 	final int maximum_parameters_genes = 200;
-	final int minimum_length = 1000;
+	final int minimum_length = 8000;
 	
 	final int mappability_min_match_length = 50;
 	final int mappability_max_match_length = 250;

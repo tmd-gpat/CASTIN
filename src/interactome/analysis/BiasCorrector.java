@@ -18,7 +18,7 @@ public class BiasCorrector {
 	// constants
 	final int max_frompolya = 3000;
 	final int iteration_count_max = 1000;
-	final double iteration_abort_ratio = 0.005;
+	final double iteration_abort_ratio = 0.001;
 	
 	double alpha = 0;
 	double beta = 0;
