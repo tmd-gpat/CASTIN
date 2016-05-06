@@ -1,4 +1,4 @@
-# CASTINE: CAncer INteraction ANalysis
+# CASTIN: CAncer-STromal INteractome analysis
 
 ## General Notes
 
