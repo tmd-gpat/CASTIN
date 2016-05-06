@@ -55,6 +55,7 @@ public class PairedEndInput extends Input {
 			long[] length_stat = new long[20000];
 			for (int j=0; j<length_stat.length; j++) length_stat[j] = 0;
 			
+			String former_read_name = "";
 			for (i=0; ; i++) {
 				if (i%1_000_000 == 0) {
 					Logger.logf("processed %d reads.", i);
@@ -65,6 +66,8 @@ public class PairedEndInput extends Input {
 				boolean end = false;
 				
 				String read_name = next_1[0].split("#")[0];
+				if (read_name.equals(former_read_name)) break;
+				former_read_name = read_name;
 				Set<Refseq> found_refseqs = new HashSet<Refseq>();
 				
 				// accept sam entries appropriate for the current directional mode
