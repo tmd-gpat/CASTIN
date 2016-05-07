@@ -61,6 +61,12 @@ $ cd /path/to/CASTIN/inputdir
 $ bowtie -S --sam-nohead -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 input.fastq > input.sam
 
 # analysis
+$ cd /path/to/CASTIN
+$ export JRI_DIR=/path/to/R/library/rJava/jri/
 $ java -cp "./bin:./lib/*" -Xmx16g -Xms8g -Djava.library.path=$JRI_DIR interaction.Main -s /path/to/CASTIN/inputdir/input.sam -o /path/to/CASTIN/outputdir
 ```
+
+## License
+
+CASTIN is released under the GNU General Public License (GPL).
 
