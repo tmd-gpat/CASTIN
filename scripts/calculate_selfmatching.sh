@@ -15,7 +15,7 @@ mkvtree -db ${TAX_1}_${TAX_2}_refMrna.fasta -dna -pl 12 -allout -v
 
 vmatch -l 50 -v -d -p ${TAX_1}_${TAX_2}_refMrna.fasta > ${TAX_1}_${TAX_2}_selfmatch.txt
 
-ruby ../../scripts/summarize_vmatch_result.rb ./${TAX_1}_${TAX_2}_refMrna.fasta ../refLink.txt ./${TAX_1}_${TAX_2}_selfmatch.txt dp > ./${TAX_1}_${TAX_2}_selfmatch_summary.txt
-ruby ../../scripts/summarize_vmatch_result.rb ./${TAX_1}_${TAX_2}_refMrna.fasta ../refLink.txt ./${TAX_1}_${TAX_2}_selfmatch.txt d > ./${TAX_1}_${TAX_2}_selfmatch_summary_direct.txt
+ruby ../../scripts/summarize_vmatch_result.rb ./${TAX_1}_${TAX_2}_refMrna.fasta ../refLink.txt ./${TAX_1}_${TAX_2}_selfmatch.txt dp > ./${TAX_1}_${TAX_2}_refMrna_selfmatch_summary.txt
+ruby ../../scripts/summarize_vmatch_result.rb ./${TAX_1}_${TAX_2}_refMrna.fasta ../refLink.txt ./${TAX_1}_${TAX_2}_selfmatch.txt d > ./${TAX_1}_${TAX_2}_refMrna_selfmatch_summary_direct.txt
 
 rm ./${TAX_1}_${TAX_2}_selfmatch.txt

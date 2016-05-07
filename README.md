@@ -21,6 +21,7 @@ Following software are needed for preparing input and parameter files.
 ```bash
 $ git clone git@github.com:tmd-gpat/CASTIN.git
 $ cd CASTIN
+$ ln -s /path/to/your/JRI.jar lib/JRI.jar
 $ ant
 ```
 
