@@ -31,12 +31,25 @@ Set appropriate *JAVA_HOME* variable beforehand.
 
 ```bash
 $ cd CASTIN
-$ ./scripts/download_parameter_files.sh
-$ ./scripts/prepare_mapping.sh
-$ ./scripts/calculate_selfmatching.sh
+$ ./scripts/download_parameter_files.sh # download reference sequences, etc.
+$ ./scripts/prepare_mapping.sh          # make combined reference sequence and bowtie index
+$ ./scripts/calculate_selfmatching.sh   # prepare self-matching list for mappability correction
 ```
 
 ## Basic Usage
+
+### 100bp paired-end input
+```bash
+# input preparation
+$ cd /path/to/input/dir
+$ bowtie -S --sam-nohead -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 R1.fastq > input_100_1.sam
+$ bowtie -S --sam-nohead -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 R2.fastq > input_100_2.sam
+
+# analysis
+$ cd /path/to/CASTIN
+$ export JRI_DIR=/path/to/R/library/rJava/jri/
+$ java -cp "./bin:./lib/*" -Xmx16g -Xms8g -Djava.library.path=$JRI_DIR interaction.Main -p /path/to/input/dir/input -l 100 -o /path/to/output/dir
+```
 
 ## Acknowledgement
 
