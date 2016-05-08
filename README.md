@@ -1,5 +1,7 @@
 # CASTIN: CAncer-STromal INteractome analysis
 
+[![DOI](https://zenodo.org/badge/21913/tmd-gpat/CASTIN.svg)](https://zenodo.org/badge/latestdoi/21913/tmd-gpat/CASTIN)
+
 ## General Notes
 
 CASTIN (CAncer-STromal INteractome analysis) is a framework for the evaluation of cancer-stromal interactome from RNA-seq data using cancer xenograft models.
