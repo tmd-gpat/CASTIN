@@ -2,6 +2,7 @@
 *.swp
 
 /bin/
+/lib/JRI.jar
 /parameters/
 
 
