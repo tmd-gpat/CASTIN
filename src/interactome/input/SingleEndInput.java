@@ -105,6 +105,7 @@ public class SingleEndInput extends Input {
 					mapped_positions.clear();
 					mapped_lengthes.clear();
 				}
+				current_read = read_id;
 				
 				mapped_refseq_ids.add(refseq_id);
 				mapped_positions.add(match_position);
