@@ -57,7 +57,7 @@ public class Option {
 				Logger.logf("input mode: paired-ended");
 				Logger.logf("input prefix: %s", instance.input_prefix_paired);
 				break;
-			case 'o':
+			case 'o':	// output dir
 				instance.output_path = options.getOptarg();
 				Logger.logf("output path: %s", instance.output_path);
 				break;
@@ -76,7 +76,7 @@ public class Option {
 				if (instance.directional_mode == 2) strand_str = "(reverse, forward)";
 				Logger.logf("\tdirectional mode:\t%s\n", strand_str);
 				break;
-			case 'l':
+			case 'l':	// read length (paired-end input only)
 				instance.input_paired_length = Integer.valueOf(options.getOptarg());
 				Logger.logf("read length (paired-end): %d", instance.input_paired_length);
 				break;
@@ -136,6 +136,8 @@ public class Option {
 				"self_matching_direct",
 				"curated_HPRD_KEGG",
 			};
+			HashMap<String, String> optional_items = new HashMap<String, String>();
+			optional_items.put("parameter_gene_minimum_length", "8000");
 			
 			for (String item : required_items) {
 				String value = config.getProperty(item);
@@ -145,6 +147,16 @@ public class Option {
 				}
 				this.settings.put(item, value);
 				Logger.logf("%s: %s", item, value);
+			}
+			
+			for (String key : optional_items.keySet()) {
+				String value = config.getProperty(key);
+				if (value == null) { // default value
+					this.settings.put(key, optional_items.get(key));
+				} else { // user-specified value
+					this.settings.put(key, value);
+					Logger.logf("%s: %s", key, value);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

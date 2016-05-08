@@ -24,7 +24,7 @@ public class DynamicParameters {
 	final double minimum_coverage = 0.8;
 	final int minimum_coverage_depth = 1;
 	final int maximum_parameters_genes = 200;
-	final int minimum_length = 8000;
+	int minimum_length = 8000;
 	
 	final int mappability_min_match_length = 50;
 	final int mappability_max_match_length = 250;
@@ -44,6 +44,12 @@ public class DynamicParameters {
 	
 	private DynamicParameters(Input input) {
 		this.input = input;
+		try {
+			int tmp = Integer.valueOf(Option.getInstance().settings.get("parameter_gene_minimum_length"));
+			minimum_length = tmp;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void selectParameterRefseqs() {
