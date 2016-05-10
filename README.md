@@ -18,8 +18,8 @@ CASTIN is depending on the following software/libraries.
 
 Following software are needed for preparing input and parameter files.
 
-- bowtie
-- vmatch
+- [bowtie](http://bowtie-bio.sourceforge.net/index.shtml)
+- [vmatch](http://www.vmatch.de/)
 
 ## Installation
 
