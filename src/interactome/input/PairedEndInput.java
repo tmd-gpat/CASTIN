@@ -91,7 +91,7 @@ public class PairedEndInput extends Input {
 					}
 					
 					String line = br_1.readLine();
-					if (line == null) {
+					if (line == null || line.charAt(0) == '#') {
 						end = true;
 						break;
 					}
