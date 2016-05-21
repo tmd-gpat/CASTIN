@@ -115,7 +115,7 @@ public class PairedEndInput extends Input {
 					}
 					
 					String line = br_2.readLine();
-					if (line == null) {
+					if (line == null || line.charAt(0) == '#') { // for aligners (bowtie, etc.) generating reporting comments starting from '#' at the end of inputs
 						end = true;
 						break;
 					}
