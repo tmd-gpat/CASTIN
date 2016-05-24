@@ -49,8 +49,8 @@ $ export R_HOME=/path/to/R/home/
 ```bash
 # input preparation
 $ cd /path/to/CASTIN/inputdir
-$ bowtie -S --sam-nohead -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 R1.fastq > input_100_1.sam
-$ bowtie -S --sam-nohead -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 R2.fastq > input_100_2.sam
+$ bowtie -S --sam-nohead -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 R1.fastq > input_1_100.sam
+$ bowtie -S --sam-nohead -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 R2.fastq > input_2_100.sam
 
 # analysis
 $ cd /path/to/CASTIN
