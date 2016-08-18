@@ -1,7 +1,10 @@
 package interactome.input;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +36,28 @@ public class PairedEndInput extends Input {
 			FileReader fr_2 = new FileReader(option.input_prefix_paired + "_2_" + option.input_paired_length + ".sam");
 			BufferedReader br_1 = new BufferedReader(fr_1);
 			BufferedReader br_2 = new BufferedReader(fr_2);
+			
+			// prepare writer for cancer/stroma.fastq if specified
+			FileWriter fw_cancer_1 = null;
+			FileWriter fw_cancer_2 = null;
+			FileWriter fw_stroma_1 = null;
+			FileWriter fw_stroma_2 = null;
+			BufferedWriter bw_cancer_1 = null;
+			BufferedWriter bw_cancer_2 = null;
+			BufferedWriter bw_stroma_1 = null;
+			BufferedWriter bw_stroma_2 = null;
+			if (option.output_cancer_fastq) {
+				fw_cancer_1 = new FileWriter(new File(option.output_path + "/cancer_1.fastq"));
+				fw_cancer_2 = new FileWriter(new File(option.output_path + "/cancer_2.fastq"));
+				bw_cancer_1 = new BufferedWriter(fw_cancer_1);
+				bw_cancer_2 = new BufferedWriter(fw_cancer_2);
+			}
+			if (option.output_stromal_fastq) {
+				fw_stroma_1 = new FileWriter(new File(option.output_path + "/stroma_1.fastq"));
+				fw_stroma_2 = new FileWriter(new File(option.output_path + "/stroma_2.fastq"));
+				bw_stroma_1 = new BufferedWriter(fw_stroma_1);
+				bw_stroma_2 = new BufferedWriter(fw_stroma_2);
+			}
 			
 			// next row data
 			String[] next_1, next_2;
@@ -151,6 +176,28 @@ public class PairedEndInput extends Input {
 				// check the gene correspondence among the pair
 				if (gene_1 != gene_2) continue;
 				
+				// dump cancer/stromal fastq (if user specified)
+				if (option.output_cancer_fastq && gene_1.tax_id.equals(option.settings.get("cancer_taxonomy"))) {
+					bw_cancer_1.write("@" + data_1.get(0)[0] + "\n");
+					bw_cancer_1.write(data_1.get(0)[9] + "\n");
+					bw_cancer_1.write("+\n");
+					bw_cancer_1.write(data_1.get(0)[10] + "\n");
+					bw_cancer_2.write("@" + data_2.get(0)[0] + "\n");
+					bw_cancer_2.write(data_2.get(0)[9] + "\n");
+					bw_cancer_2.write("+\n");
+					bw_cancer_2.write(data_2.get(0)[10] + "\n");
+				}
+				if (option.output_stromal_fastq && gene_1.tax_id.equals(option.settings.get("stromal_taxonomy"))) {
+					bw_stroma_1.write("@" + data_1.get(0)[0] + "\n");
+					bw_stroma_1.write(data_1.get(0)[9] + "\n");
+					bw_stroma_1.write("+\n");
+					bw_stroma_1.write(data_1.get(0)[10] + "\n");
+					bw_stroma_2.write("@" + data_2.get(0)[0] + "\n");
+					bw_stroma_2.write(data_2.get(0)[9] + "\n");
+					bw_stroma_2.write("+\n");
+					bw_stroma_2.write(data_2.get(0)[10] + "\n");
+				}
+				
 				// find mapping-pairs
 				HashMap<Refseq, DetectedData> detections = new HashMap<Refseq, PairedEndInput.DetectedData>();
 				for (Refseq found_refseq : found_refseqs) {
@@ -256,6 +303,18 @@ public class PairedEndInput extends Input {
 			br_2.close();
 			fr_1.close();
 			fr_2.close();
+			if (option.output_cancer_fastq) {
+				bw_cancer_1.close();
+				bw_cancer_2.close();
+				fw_cancer_1.close();
+				fw_cancer_2.close();
+			}
+			if (option.output_stromal_fastq) {
+				bw_stroma_1.close();
+				bw_stroma_2.close();
+				fw_stroma_1.close();
+				fw_stroma_2.close();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

@@ -26,6 +26,9 @@ public class Option {
 	public boolean output_mappability = false;
 	public boolean output_gcpercent = false;
 	
+	public boolean output_cancer_fastq = false;
+	public boolean output_stromal_fastq = false;
+	
 	// analysis settings (e.g., parameter files)
 	public String setting_file_name = "settings.properties";
 	public HashMap<String, String> settings;
@@ -40,7 +43,7 @@ public class Option {
 	public static Option createInstance(String[] args) {
 		Option instance = new Option();
 		
-		Getopt options = new Getopt("Interaction", args, "s:p:o:mgd:l:");
+		Getopt options = new Getopt("Interaction", args, "s:p:o:mgd:l:yz");
 		int c;
 		
 		while ((c = options.getopt()) != -1) {
@@ -79,6 +82,14 @@ public class Option {
 			case 'l':	// read length (paired-end input only)
 				instance.input_paired_length = Integer.valueOf(options.getOptarg());
 				Logger.logf("read length (paired-end): %d", instance.input_paired_length);
+				break;
+			case 'y':   // output sorted tumor fastq
+				instance.output_cancer_fastq = true;
+				Logger.logf("output tumor fastq");
+				break;
+			case 'z':	// output sorted stromal fastq
+				instance.output_stromal_fastq = true;
+				Logger.logf("output stromal fastq");
 				break;
 			}
 		}
