@@ -148,7 +148,7 @@ public class Analysis {
 		}
 
 		// normalize of stromal gene expressions
-		expressions = new double[biodb.stromal_refseq_ids.length];
+		expressions = new double[biodb.stromal_entrez_ids.length];
 		for (int i=0; i<biodb.stromal_entrez_ids.length; i++) {
 			expressions[i] = input.gene_inputs.get(biodb.stromal_entrez_ids[i]).representativeRefseqInput.true_expression;
 		}
