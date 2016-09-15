@@ -142,6 +142,7 @@ public class Analysis {
 				sum += expressions[i];
 			}
 		}
+		if (sum == 0) sum = 1; // total expression = 0
 		for (String entrez_id : biodb.cancer_entrez_ids) {
 			GeneInput ginput = input.gene_inputs.get(entrez_id);
 			ginput.normalizedExpression = ginput.representativeRefseqInput.true_expression * 300000.0 / sum;
@@ -162,6 +163,7 @@ public class Analysis {
 				sum += expressions[i];
 			}
 		}
+		if (sum == 0) sum = 1; // total expression = 0
 		for (String entrez_id : biodb.stromal_entrez_ids) {
 			GeneInput ginput = input.gene_inputs.get(entrez_id);
 			ginput.normalizedExpression = ginput.representativeRefseqInput.true_expression * 300000.0 / sum;
