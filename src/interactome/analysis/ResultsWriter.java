@@ -127,6 +127,8 @@ public class ResultsWriter {
 			FileWriter fw = new FileWriter(option.output_path + "/" + filename);
 			BufferedWriter bw = new BufferedWriter(fw);
 			
+			int read_length_to_calculate_mappable_read_count = 50;
+			
 			// write header
 			String[] column_names = new String[] {
 				"Refseq ID",
@@ -134,7 +136,7 @@ public class ResultsWriter {
 				"raw count",
 				"count (from Poly-A, GC corrected)",
 				"length",
-				"mappable reads (" + option.input_paired_length + "bp)",
+				"mappable reads (" + read_length_to_calculate_mappable_read_count + "bp)",
 				"no cover",
 				"10 cover",
 				"20 cover",
@@ -154,7 +156,7 @@ public class ResultsWriter {
 					row.rawCount,
 					row.true_expression,
 					row.refseq.length,
-					row.refseq.mappable_position_count_for_specific_read_length(option.input_paired_length),
+					row.refseq.mappable_position_count_for_specific_read_length(read_length_to_calculate_mappable_read_count),
 					1.0 - row.coverage(1),
 					row.coverage(10),
 					row.coverage(20),

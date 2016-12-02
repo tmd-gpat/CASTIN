@@ -79,7 +79,7 @@ public class Option {
 				if (instance.directional_mode == 2) strand_str = "(reverse, forward)";
 				Logger.logf("\tdirectional mode:\t%s\n", strand_str);
 				break;
-			case 'l':	// read length (paired-end input only)
+			case 'l':	// read length (paired-end input only) ... to be deprecated
 				instance.input_paired_length = Integer.valueOf(options.getOptarg());
 				Logger.logf("read length (paired-end): %d", instance.input_paired_length);
 				break;
@@ -105,11 +105,11 @@ public class Option {
 			Logger.errorf("read length (-l) cannot be specified in single-end mode.");
 			return null;
 		}
-		
+		/*
 		if (instance.input_prefix_paired != null && instance.input_paired_length == 0) {
 			Logger.errorf("read length (-l) should be specified in paired-end mode.");
 			return null;
-		}
+		}*/
 		
 		// error if output path was not specified
 		if (instance.output_path == null) {

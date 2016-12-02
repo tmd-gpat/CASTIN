@@ -32,8 +32,11 @@ public class PairedEndInput extends Input {
 		
 		Logger.logf("\nstart loading RNA-seq file (paired-ended)");
 		try {
-			FileReader fr_1 = new FileReader(option.input_prefix_paired + "_1_" + option.input_paired_length + ".sam");
-			FileReader fr_2 = new FileReader(option.input_prefix_paired + "_2_" + option.input_paired_length + ".sam");
+			String samname_1 = option.input_prefix_paired + "_1.sam";
+			String samname_2 = option.input_prefix_paired + "_2.sam";
+			
+			FileReader fr_1 = new FileReader(samname_1);
+			FileReader fr_2 = new FileReader(samname_2);
 			BufferedReader br_1 = new BufferedReader(fr_1);
 			BufferedReader br_2 = new BufferedReader(fr_2);
 			
@@ -108,8 +111,7 @@ public class PairedEndInput extends Input {
 						(option.directional_mode == 1 && (map_flag & 16) == 0) ||
 						(option.directional_mode == 2 && (map_flag & 16) != 0)) {
 						Refseq refseq = biodb.refseq_db.get(next_1[2]);
-						if (refseq != null && !refseq.is_invalid &&
-							next_1[5].equals(option.input_paired_length + "M")) {
+						if (refseq != null && !refseq.is_invalid && !next_1[5].equals("*")) {
 							found_refseqs.add(refseq);
 							data_1.add(next_1);
 						}
@@ -132,8 +134,7 @@ public class PairedEndInput extends Input {
 						(option.directional_mode == 1 && (map_flag & 16) != 0) ||
 						(option.directional_mode == 2 && (map_flag & 16) == 0)) {
 						Refseq refseq = biodb.refseq_db.get(next_2[2]);
-						if (refseq != null && !refseq.is_invalid &&
-							next_2[5].equals(option.input_paired_length + "M")) {
+						if (refseq != null && !refseq.is_invalid && !next_2[5].equals("*")) {
 							found_refseqs.add(refseq);
 							data_2.add(next_2);
 						}
@@ -151,7 +152,8 @@ public class PairedEndInput extends Input {
 				}
 				
 				if (data_1.size() == 0 || data_2.size() == 0) continue;
-				this.match_length_distribution[option.input_paired_length]++;
+				this.match_length_distribution[calculateMatchLength(data_1.get(0)[5])]++;
+				this.match_length_distribution[calculateMatchLength(data_2.get(0)[5])]++;
 				
 				// check unique-gene-hit condition
 				Gene gene_1 = biodb.refseq_db.get(data_1.get(0)[2]).gene;
@@ -208,12 +210,14 @@ public class PairedEndInput extends Input {
 					DetectedData detection = detections.get(refseq);
 					detection.pos_a.add(Integer.valueOf(data[3])-1); // 1-order -> 0-order
 					detection.reverse_a.add((Integer.valueOf(data[1]) & 16) != 0);
+					detection.len_a.add(calculateMatchLength(data[5]));
 				}
 				for (String[] data : data_2) {
 					Refseq refseq = biodb.refseq_db.get(data[2]);
 					DetectedData detection = detections.get(refseq);
 					detection.pos_b.add(Integer.valueOf(data[3])-1); // 1-order -> 0-order
 					detection.reverse_b.add((Integer.valueOf(data[1]) & 16) != 0);
+					detection.len_b.add(calculateMatchLength(data[5]));
 				}
 				
 				// count valid mapping-pair
@@ -225,10 +229,12 @@ public class PairedEndInput extends Input {
 						
 						int pos_a = data.pos_a.get(0);
 						int pos_b = data.pos_b.get(0);
-						int lapped_length = Math.abs(pos_a - pos_b) + option.input_paired_length;
-						this.incrementPair(entry.getKey(), pos_a, pos_b);
-						if (lapped_length < length_stat.length) {
-							length_stat[lapped_length]++;
+						int len_a = data.len_a.get(0);
+						int len_b = data.len_b.get(0);
+						int lap_length = Math.abs(pos_a - pos_b);
+						this.incrementPair(entry.getKey(), pos_a, pos_b, len_a, len_b);
+						if (lap_length < length_stat.length) {
+							length_stat[lap_length]++;
 						}
 						valid_read = true;
 					} else if (data.pos_a.size() > 0 && data.pos_b.size() > 0) {
@@ -271,6 +277,8 @@ public class PairedEndInput extends Input {
 				int best_lap_length = Integer.MAX_VALUE;
 				int final_pos_a = 0;
 				int final_pos_b = 0;
+				int final_len_a = 50;
+				int final_len_b = 50;
 				for (int x=0; x<detect.pos_a.size(); x++) {
 					for (int y=0; y<detect.pos_b.size(); y++) {
 						int pos_a = detect.pos_a.get(x);
@@ -278,19 +286,23 @@ public class PairedEndInput extends Input {
 						boolean rev_a = detect.reverse_a.get(x);
 						boolean rev_b = detect.reverse_b.get(y);
 						if (rev_a == rev_b) continue;
+						int len_a = detect.len_a.get(x);
+						int len_b = detect.len_b.get(y);
 						
-						int lap_length = Math.abs(pos_a - pos_b) + option.input_paired_length;
+						int lap_length = Math.abs(pos_a - pos_b);
 						if (Math.abs(lap_length - average) < Math.abs(best_lap_length - average)
 							&& Math.abs(lap_length - average) < sd*2) {
 							best_lap_length = lap_length;
 							final_pos_a = pos_a;
 							final_pos_b = pos_b;
+							final_len_a = len_a;
+							final_len_b = len_b;
 						}
 					}
 				}
 				
 				if (best_lap_length < Integer.MAX_VALUE) {
-					this.incrementPair(detect.refseq, final_pos_a, final_pos_b);
+					this.incrementPair(detect.refseq, final_pos_a, final_pos_b, final_len_a, final_len_b);
 					if (detect.refseq.tax_id.equals(option.settings.get("cancer_taxonomy"))) {
 						cancer_read_count++;
 					} else {
@@ -326,18 +338,33 @@ public class PairedEndInput extends Input {
 		
 		return true;
 	}
+	
+	int calculateMatchLength(String data) {
+		int match_length = 0;
+		String[] length_chunks = data.split("[A-Z]");
+		
+		int j = 0;
+		for (int i=0; i<data.length(); i++) {
+			char c = data.charAt(i);
+			if (c == 'M' || c == 'D' || c == 'N') {
+				match_length += Integer.valueOf(length_chunks[j]);
+			}
+			if (Character.isLetter(c)) j++;
+		}
+		return match_length;
+	}
 
-	void incrementPair(Refseq refseq, int pos_a, int pos_b) {
+	void incrementPair(Refseq refseq, int pos_a, int pos_b, int len_a, int len_b) {
 		RefseqInput entry = refseq_inputs.get(refseq.refseq_id);
 		
 		entry.rawCount++;
 		entry.starting_counts[pos_a]++;
 		entry.starting_counts[pos_b]++;
 		
-		for (int i=pos_a; i<pos_a+option.input_paired_length && i<refseq.length; i++) {
+		for (int i=pos_a; i<pos_a+len_a && i<refseq.length; i++) {
 			entry.overlap_counts[i]++;
 		}
-		for (int i=pos_b; i<pos_b+option.input_paired_length && i<refseq.length; i++) {
+		for (int i=pos_b; i<pos_b+len_b && i<refseq.length; i++) {
 			entry.overlap_counts[i]++;
 		}
 	}
