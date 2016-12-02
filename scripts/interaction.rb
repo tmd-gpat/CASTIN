@@ -9,7 +9,7 @@ deprecated_entrez_ids = [
 #    6081,   # SNORA73B (human)
 #    404338, # Olfr1434 (mouse)
 ]
-interaction_path = "KEGG/curated_HPRD_KEGG_20160508.txt"
+interaction_path = "KEGG/curated_HPRD_KEGG_20161110.txt"
 
 ## start of class definition
 class Gene
