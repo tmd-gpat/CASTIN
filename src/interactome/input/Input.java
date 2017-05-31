@@ -11,7 +11,7 @@ public abstract class Input {
 	public HashMap<String, GeneInput> gene_inputs;
 	
 	// statistics of match-length
-	public long[] match_length_distribution = new long[1000];
+	public long[] match_length_distribution = new long[1001];
 	
 	public Input() {
 		BioDB biodb = BioDB.getInstance();

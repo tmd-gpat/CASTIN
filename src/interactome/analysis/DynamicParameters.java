@@ -27,7 +27,7 @@ public class DynamicParameters {
 	int minimum_length = 8000;
 	
 	final int mappability_min_match_length = 50;
-	final int mappability_max_match_length = 250;
+	final int mappability_max_match_length = 400;
 	
 	// instance fields
 	Input input;
