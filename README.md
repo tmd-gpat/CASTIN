@@ -61,7 +61,7 @@ $ rm sorted.bam
 
 # analysis
 $ cd /path/to/CASTIN
-$ java -cp "./bin:./lib/*" -Xmx16g -Xms8g -Djava.library.path=$JRI_DIR interaction.Main -p /path/to/CASTIN/inputdir/input -l 100 -o /path/to/CASTIN/outputdir
+$ java -cp "./bin:./lib/*" -Xmx16g -Xms8g -Djava.library.path=$JRI_DIR interactome.Main -p /path/to/CASTIN/inputdir/input -l 100 -o /path/to/CASTIN/outputdir
 ```
 
 ### variable length single-end input (e.g., iontorrent)
@@ -72,7 +72,7 @@ $ bowtie -S --sam-nohead -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 
 
 # analysis
 $ cd /path/to/CASTIN
-$ java -cp "./bin:./lib/*" -Xmx16g -Xms8g -Djava.library.path=$JRI_DIR interaction.Main -s /path/to/CASTIN/inputdir/input.sam -o /path/to/CASTIN/outputdir
+$ java -cp "./bin:./lib/*" -Xmx16g -Xms8g -Djava.library.path=$JRI_DIR interactome.Main -s /path/to/CASTIN/inputdir/input.sam -o /path/to/CASTIN/outputdir
 ```
 
 ## Input files
