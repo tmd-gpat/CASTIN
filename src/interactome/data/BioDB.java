@@ -398,8 +398,9 @@ public class BioDB {
 			String current_refseq = "";
 			int processed_refseqs = 0;
 			
-			while ((l = br.readLine()) != null) {
-				if (l.charAt(0) == '>') {
+			while (true) {
+				l = br.readLine();
+				if (l == null || l.charAt(0) == '>') {
 					if (!current_refseq.equals("")) {
 						int n = option.read_length; // side range
 						
@@ -444,11 +445,14 @@ public class BioDB {
 							Logger.logf("%d", processed_refseqs);
 						}
 					}
-					current_refseq = l.split(" ")[0].substring(1);
-					sequence = "";
+					if (l != null) {
+						current_refseq = l.split(" ")[0].substring(1);
+						sequence = "";
+					}
 				} else {
 					sequence = sequence + l.trim().toLowerCase();
 				}
+				if (l == null) break;
 			}
 			
 			br.close();
