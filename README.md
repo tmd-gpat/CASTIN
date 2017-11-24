@@ -75,6 +75,19 @@ $ cd /path/to/CASTIN
 $ java -cp "./bin:./lib/*" -Xmx16g -Xms8g -Djava.library.path=$JRI_DIR interactome.Main -s /path/to/CASTIN/inputdir/input.sam -o /path/to/CASTIN/outputdir
 ```
 
+## Options
+
+```bash
+-s single-end input file prefix (cannot be specified with -p)
+
+-p paired-end input file prefix (cannot be specified with -s)
+
+-o output directory
+
+-d directionality for paired end input (0: undirectional 1: (forward, reversed) only, 2: (reversed, forward) only)
+
+```
+
 ## Input files
 
 CASTIN can take alignment sam files as input. Any alignment software may be used to produce the sam files, but bowtie aligner is recommended. Indexed reference sequence files for bowtie are included in the software package.

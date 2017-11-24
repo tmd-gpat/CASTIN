@@ -269,7 +269,7 @@ public class PairedEndInput extends Input {
 			sd /= count;
 			sd = Math.sqrt(sd);
 			
-			Logger.logf("average overlapped length = %f (sd = %f)", average, sd);
+			Logger.logf("average pair interval = %f (sd = %f)", average, sd);
 			
 			// process reserved multiple-multiple detections
 			// positions whose overlap-length is most close to the average are accepted
