@@ -49,19 +49,19 @@ $ export R_HOME=/path/to/R/home/
 ```bash
 # input preparation
 $ cd /path/to/CASTIN/inputdir
-$ bowtie -p 4 -S -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 R1.fastq > input_1_100.sam
-$ bowtie -p 4 -S -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 R2.fastq > input_2_100.sam
+$ bowtie -p 4 -S -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 R1.fastq > input_1.sam
+$ bowtie -p 4 -S -a -v 1 /path/to/CASTIN/parameters/hg38_mm10/hg38_mm10 R2.fastq > input_2.sam
 
 # sort sam files
-$ samtools view -@ 4 -bS input_1_100.sam | samtools sort -n -@ 4 - sorted
-$ samtools view -@ 4 sorted.bam > input_1_100.sam
-$ samtools view -@ 4 -bS input_2_100.sam | samtools sort -n -@ 4 - sorted
-$ samtools view -@ 4 sorted.bam > input_2_100.sam
+$ samtools view -@ 4 -bS input_1.sam | samtools sort -n -@ 4 - sorted
+$ samtools view -@ 4 sorted.bam > input_1.sam
+$ samtools view -@ 4 -bS input_2.sam | samtools sort -n -@ 4 - sorted
+$ samtools view -@ 4 sorted.bam > input_2.sam
 $ rm sorted.bam
 
 # analysis
 $ cd /path/to/CASTIN
-$ java -cp "./bin:./lib/*" -Xmx16g -Xms8g -Djava.library.path=$JRI_DIR interactome.Main -p /path/to/CASTIN/inputdir/input -l 100 -o /path/to/CASTIN/outputdir
+$ java -cp "./bin:./lib/*" -Xmx16g -Xms8g -Djava.library.path=$JRI_DIR interactome.Main -p /path/to/CASTIN/inputdir/input -o /path/to/CASTIN/outputdir
 ```
 
 ### variable length single-end input (e.g., iontorrent)
