@@ -339,11 +339,11 @@ public class BioDB {
 				String ligand = row[1];
 				String receptor = row[2];
 				String kegg = "NA", kegg_id = "NA";
-				if (row[10].split("_").length >= 2) {
-					kegg = row[10].split("_")[1];
-					kegg_id = row[10].split("_")[0];
+				if (row[13].split("_").length >= 2) {
+					kegg = row[13].split("_")[1];
+					kegg_id = row[13].split("_")[0];
 				}
-				String type = row[11].trim();
+				String type = row[14].trim();
 				
 				// find genes
 				Gene ligand_gene = gene_cancer_symbol_db.get(ligand);
